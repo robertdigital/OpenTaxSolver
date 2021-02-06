@@ -70,6 +70,3 @@
 ## v16.00 (2019-02-02)
 
 * Initial Release for Tax-Year 2018.
-* New this year, the `examples_and_templates` directory has been
-  renamed `tax_form_files`. It still contains templates and example
-  form-files, but the new name will be more intuitive to new users.

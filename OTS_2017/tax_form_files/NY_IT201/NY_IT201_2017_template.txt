@@ -1,7 +1,7 @@
 Title:  NY State 2017 Tax Form IT-201
 
 	{ Data is collected by scanning your Federal return to avoid re-entering it. }
-FileName   examples_and_templates/US_1040/your_fed_out.txt 	{ File-name of Federal Return output file. }
+FileName   tax_form_files/US_1040/your_fed_out.txt 	{ File-name of Federal Return output file. }
 
 { --- Your Info --- (fieldsz=12) }
 

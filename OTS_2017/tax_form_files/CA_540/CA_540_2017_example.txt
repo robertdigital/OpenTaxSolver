@@ -2,7 +2,7 @@ Title:  CA State Tax Form 540 - 2017 -- Example
 
 { --- Example --- }
 
-FileName   examples_and_templates/US_1040/US_1040_example_out.txt  { File-name of Federal Return output file. }
+FileName   tax_form_files/US_1040/US_1040_example_out.txt  { File-name of Federal Return output file. }
         { Data is collected by scanning Federal return to avoid re-entering it. }
 
 {--Exemptions--}

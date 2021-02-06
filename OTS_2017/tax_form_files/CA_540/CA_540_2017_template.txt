@@ -2,7 +2,7 @@ Title:  CA State Tax Form 540 - 2017
 
   { Data is collected by scanning Federal Return results to avoid re-entering data. }
 
-FileName   examples_and_templates/US_1040/fed_out.txt { File-name of Federal Return output file. }
+FileName   tax_form_files/US_1040/fed_out.txt { File-name of Federal Return output file. }
 
 {--Exemptions--}
 L6              no      { Are you a dependent? (answer: Yes, No) }

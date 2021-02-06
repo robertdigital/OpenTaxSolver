@@ -98,7 +98,7 @@ int ots_column=0, ots_line=0;	/* Input file position. */
 #define MaxFname 4096
 char wildcards_bin[MaxFname]="", filename_exe[MaxFname]="", *ots_path;
 char directory_dat[MaxFname]=".", wildcards_dat[MaxFname]="*.txt", filename_incl[MaxFname]="";
-char directory_incl[MaxFname]="examples_and_templates", wildcards_incl[MaxFname]="*_out.txt";
+char directory_incl[MaxFname]="tax_form_files", wildcards_incl[MaxFname]="*_out.txt";
 char directory_fb[MaxFname]="", wildcards_fb[MaxFname]="", filename_fb[MaxFname]="";
 char *title_line="Tax File", *current_working_filename=0, *invocation_path, *include_file_name=0;
 char wildcards_out[MaxFname]="*_out.txt";
@@ -2664,7 +2664,7 @@ void slcttxprog( GtkWidget *wdg, void *data )
    while ((k > 0) && (tmpstr[k] != slashchr)) k--;
    if (tmpstr[k] == slashchr)  tmpstr[k+1] = '\0';
    else  {sprintf(tmpstr,".%c", slashchr);}
-   sprintf(directory_dat, "%sexamples_and_templates%c", tmpstr, slashchr);
+   sprintf(directory_dat, "%stax_form_files%c", tmpstr, slashchr);
 
    return;
   }
@@ -2684,7 +2684,7 @@ void slcttxprog( GtkWidget *wdg, void *data )
    while ((k > 0) && (tmpstr[k] != slashchr)) k--;
    if (tmpstr[k] == slashchr)  tmpstr[k+1] = '\0';
    else  {sprintf(tmpstr,".%c", slashchr);}
-   sprintf(directory_dat, "%sexamples_and_templates%c", tmpstr, slashchr);
+   sprintf(directory_dat, "%stax_form_files%c", tmpstr, slashchr);
 
    sel = strstr( strg, "_2017" );
    if (sel != 0)
@@ -3026,7 +3026,7 @@ int main(int argc, char *argv[] )
     while ((kx > 0) && (tmpstr[kx] != slashchr)) kx--;
     if (tmpstr[kx] == slashchr)  tmpstr[kx+1] = '\0';
     else  {sprintf(tmpstr,".%c", slashchr);}
-    sprintf(directory_dat, "%sexamples_and_templates%c", tmpstr, slashchr);
+    sprintf(directory_dat, "%stax_form_files%c", tmpstr, slashchr);
     selected_form = form_other;
     ok_slcttxprog = 0;
    }
