@@ -31,12 +31,6 @@ Also contains an Automatic PDF Form-Fillout function:
 -----------------------------------------------------------
   RPLCSTRNG_02
 
-History:
-    * v18.00 (1/25/2021) - Initial Release for Tax-Year 2020.
-		CA and NY state taxes are not included in this version because
-		the states have not yet released their form instructions
-		information.  Please check back for updates.
-
 Usage:
  RPLCSTRNG_03
   (Located in the top directory.)

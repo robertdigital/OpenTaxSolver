@@ -30,30 +30,6 @@ Also contains a new Automatic PDF Form-Fillout function:
 -----------------------------------------------------------
   RPLCSTRNG_02
 
-History:
-    * v15.07 (4/12/2018) - Code clean-ups in GUI.  Re-activated Line-34, Tuition
-	and Fees Deduction, which was originally denied for 2017, and then
-	recently re-allowed in the midst of the this filing season.
-    * v15.06 (4/2/2018) - Adjusted Virginia program for Line-12 to force itemized
-	deductions if itemized on Federal, even if VA. Std. Deduction would have 
-	been greater.
-    * v15.05 (3/23/2018) - Minor improvements to PDF printouts US-1040 + NJ State.
-    * v15.04 (3/16/2018) - Further automated California CA540 Adjustments form.
-	Provides more complete form fill-out.
-	In US-1040, now blanks unneeded zero entries, and properly resets "various"
-	date in Cap-Gains form.  Added optional ability to accept AMT Form 6251
-	entries for lines 8-27.
-    * v15.03 (2/14/2018) - Fixed fed1040 collectible gains used before input,
-	missing fill-in of 1st SchedB Int+Divs, comma issue in Sched-B PDF,
-	proper medical percentage in Sched-A line 3. Began addressing OH form
-	size issues.  More line-label improvements.  Apt + Middle initials in
-	PDF forms.
-    * v15.02 (2/6/2018) - Added NY, and MA State Tax forms.
-	Several fixes & improvements.  Added page-overflow 
-	capability for Fed-1040 Schedules B+D. 
-    * v15.01 (2/2/2018) - Added VA, and PA State Tax forms.
-    * v15.00 (1/15/2018) - Initial Release for Tax Year 2017.
-
 Usage:
  RPLCSTRNG_03
   (Located in the top directory.)
