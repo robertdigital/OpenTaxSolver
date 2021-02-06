@@ -1,80 +1,79 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
 
-CC      =  cc
-CFLAGS  =
-COPTIM  = -O -Wall
+CC = gcc
+CFLAGS += -O -Wall
+BUILD = ../bin
 
+all: $(BUILD)/taxsolve_US_1040_2019 \
+	$(BUILD)/taxsolve_US_1040_Sched_C_2019 \
+	$(BUILD)/taxsolve_PA_40_2019 \
+	$(BUILD)/taxsolve_NJ_1040_2019 \
+	$(BUILD)/taxsolve_VA_760_2019 \
+	$(BUILD)/taxsolve_NC_D400_2019 \
+	$(BUILD)/taxsolve_OH_IT1040_2019 \
+	$(BUILD)/taxsolve_NY_IT201_2019 \
+	$(BUILD)/taxsolve_MA_1_2019 \
+	$(BUILD)/taxsolve_CA_540_2019 \
+	$(BUILD)/taxsolve_HSA_f8889 \
+	$(BUILD)/universal_pdf_file_modifier \
+	$(BUILD)/convert_results2xfdf \
+	../Run_taxsolve_GUI
 
-SRC     = taxsolve_routines.c
-LIBS    =
+$(BUILD)/taxsolve_US_1040_2019: taxsolve_US_1040_2019.c #taxsolve_routines.c
+	mkdir -p $(BUILD)
+	$(CC) $(CFLAGS) -o $@ $^
 
+$(BUILD)/taxsolve_US_1040_Sched_C_2019: taxsolve_US_1040_Sched_C_2019.c #taxsolve_routines.c
+	@mkdir -p $(BUILD)
+	$(CC) $(CFLAGS) -o $@ $^
 
-# It would be nice to create a taxsolve_routines.h so the routines.c source only needs to be compiled once. 
-# OBJS    =  taxsolve_routines.o
-OBJS    =
+$(BUILD)/taxsolve_CA_540_2019: taxsolve_CA_540_2019.c #taxsolve_routines.c
+	@mkdir -p $(BUILD)
+	$(CC) $(CFLAGS) -o $@ $^
 
+$(BUILD)/taxsolve_NC_D400_2019: taxsolve_NC_D400_2019.c #taxsolve_routines.c
+	@mkdir -p $(BUILD)
+	$(CC) $(CFLAGS) -o $@ $^
 
-# Rule to compile objects from source
-#.c.o:
-#	$(CC)  -c  $(CFLAGS)  $*.c
+$(BUILD)/taxsolve_PA_40_2019: taxsolve_PA_40_2019.c #taxsolve_routines.c
+	@mkdir -p $(BUILD)
+	$(CC) $(CFLAGS) -o $@ $^
 
+$(BUILD)/taxsolve_NJ_1040_2019: taxsolve_NJ_1040_2019.c #taxsolve_routines.c
+	@mkdir -p $(BUILD)
+	$(CC) $(CFLAGS) -o $@ $^
 
-all: ../bin/taxsolve_US_1040_2019 \
-     ../bin/taxsolve_US_1040_Sched_C_2019 \
-     ../bin/taxsolve_PA_40_2019 \
-     ../bin/taxsolve_NJ_1040_2019 \
-     ../bin/taxsolve_VA_760_2019 \
-     ../bin/taxsolve_NC_D400_2019 \
-     ../bin/taxsolve_OH_IT1040_2019 \
-     ../bin/taxsolve_NY_IT201_2019 \
-     ../bin/taxsolve_MA_1_2019 \
-     ../bin/taxsolve_CA_540_2019 \
-     ../bin/taxsolve_HSA_f8889 \
-     ../bin/universal_pdf_file_modifier \
-     ../bin/convert_results2xfdf \
-     ../Run_taxsolve_GUI 
+$(BUILD)/taxsolve_OH_IT1040_2019: taxsolve_OH_IT1040_2019.c #taxsolve_routines.c
+	@mkdir -p $(BUILD)
+	$(CC) $(CFLAGS) -o $@ $^
 
+$(BUILD)/taxsolve_VA_760_2019: taxsolve_VA_760_2019.c #taxsolve_routines.c
+	@mkdir -p $(BUILD)
+	$(CC) $(CFLAGS) -o $@ $^
 
-../bin/taxsolve_US_1040_2019:         taxsolve_US_1040_2019.c          taxsolve_routines.c
-	$(CC) $(CFLAGS) $(COPTIM) -o  ../bin/taxsolve_US_1040_2019         taxsolve_US_1040_2019.c          $(SRCS) $(LIBS)
+$(BUILD)/taxsolve_NY_IT201_2019: taxsolve_NY_IT201_2019.c #taxsolve_routines.c
+	@mkdir -p $(BUILD)
+	$(CC) $(CFLAGS) -o $@ $^
 
-../bin/taxsolve_US_1040_Sched_C_2019: taxsolve_US_1040_Sched_C_2019.c  taxsolve_routines.c
-	$(CC) $(CFLAGS) $(COPTIM) -o  ../bin/taxsolve_US_1040_Sched_C_2019 taxsolve_US_1040_Sched_C_2019.c  $(SRCS) $(LIBS)
+$(BUILD)/taxsolve_MA_1_2019: taxsolve_MA_1_2019.c #taxsolve_routines.c
+	@mkdir -p $(BUILD)
+	$(CC) $(CFLAGS) -o $@ $^
 
-../bin/taxsolve_CA_540_2019:          taxsolve_CA_540_2019.c           taxsolve_routines.c
-	$(CC) $(CFLAGS) $(COPTIM) -o  ../bin/taxsolve_CA_540_2019          taxsolve_CA_540_2019.c           $(SRCS) $(LIBS)
+$(BUILD)/taxsolve_HSA_f8889: taxsolve_HSA_f8889.c #taxsolve_routines.c
+	@mkdir -p $(BUILD)
+	$(CC) $(CFLAGS) -o $@ $^
 
-../bin/taxsolve_NC_D400_2019:            taxsolve_NC_D400_2019.c       taxsolve_routines.c
-	$(CC) $(CFLAGS) $(COPTIM) -o  ../bin/taxsolve_NC_D400_2019         taxsolve_NC_D400_2019.c	    $(SRCS) $(LIBS)
+$(BUILD)/universal_pdf_file_modifier: universal_pdf_file_modifier.c
+	@mkdir -p $(BUILD)
+	$(CC) $(CFLAGS) -o $@ $^
 
-../bin/taxsolve_PA_40_2019:          taxsolve_PA_40_2019.c            taxsolve_routines.c
-	$(CC) $(CFLAGS) $(COPTIM) -o  ../bin/taxsolve_PA_40_2019           taxsolve_PA_40_2019.c            $(SRCS) $(LIBS)
+$(BUILD)/convert_results2xfdf: convert_results2xfdf.c
+	@mkdir -p $(BUILD)
+	$(CC) $(CFLAGS) -o $@ $^
 
-../bin/taxsolve_NJ_1040_2019:         taxsolve_NJ_1040_2019.c          taxsolve_routines.c
-	$(CC) $(CFLAGS) $(COPTIM) -o  ../bin/taxsolve_NJ_1040_2019         taxsolve_NJ_1040_2019.c          $(SRCS) $(LIBS)
+../Run_taxsolve_GUI: Run_taxsolve_GUI.c
+	$(CC) $(CFLAGS) -o $@ $^
 
-../bin/taxsolve_OH_IT1040_2019:       taxsolve_OH_IT1040_2019.c        taxsolve_routines.c
-	$(CC) $(CFLAGS) $(COPTIM) -o  ../bin/taxsolve_OH_IT1040_2019       taxsolve_OH_IT1040_2019.c        $(SRCS) $(LIBS)
-
-../bin/taxsolve_VA_760_2019:          taxsolve_VA_760_2019.c           taxsolve_routines.c
-	$(CC) $(CFLAGS) $(COPTIM) -o  ../bin/taxsolve_VA_760_2019          taxsolve_VA_760_2019.c           $(SRCS) $(LIBS)
-
-../bin/taxsolve_NY_IT201_2019:       taxsolve_NY_IT201_2019.c          taxsolve_routines.c
-	$(CC) $(CFLAGS) $(COPTIM) -o  ../bin/taxsolve_NY_IT201_2019        taxsolve_NY_IT201_2019.c         $(SRCS) $(LIBS)
-
-../bin/taxsolve_MA_1_2019:            taxsolve_MA_1_2019.c             taxsolve_routines.c
-	$(CC) $(CFLAGS) $(COPTIM) -o  ../bin/taxsolve_MA_1_2019            taxsolve_MA_1_2019.c             $(SRCS) $(LIBS)
-
-../bin/taxsolve_HSA_f8889:            taxsolve_HSA_f8889.c             taxsolve_routines.c
-	$(CC) $(CFLAGS) $(COPTIM) -o  ../bin/taxsolve_HSA_f8889            taxsolve_HSA_f8889.c		     $(SRCS) $(LIBS)
-
-../bin/universal_pdf_file_modifier: 	      universal_pdf_file_modifier.c
-	$(CC) $(CFLAGS) $(COPTIM) -o  ../bin/universal_pdf_file_modifier  universal_pdf_file_modifier.c	$(SRCS) $(LIBS)
-
-../bin/convert_results2xfdf: 	      convert_results2xfdf.c
-	$(CC) $(CFLAGS) $(COPTIM) -o  ../bin/convert_results2xfdf  convert_results2xfdf.c	$(SRCS) $(LIBS)
-
-../Run_taxsolve_GUI:		      Run_taxsolve_GUI.c
-	$(CC) $(CFLAGS) $(COPTIM) Run_taxsolve_GUI.c -o ../Run_taxsolve_GUI
-
+.PHONY: clean
 clean:
-	/bin/rm -fv ../bin/taxsolve* ../Run_taxsolve_GUI ../bin/convert_results2xfdf
+	$(RM) -rv $(BUILD) ../Run_taxsolve_GUI
