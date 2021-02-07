@@ -59,6 +59,7 @@ following PDF viewers:
 ## Legal
 
 This program is made available under the terms of the GNU General
-Public License, version 2.0, or later. See LICENSE for details.
+Public License, version 2.0 or later. See
+[LICENSE](./LICENSES/GPL-2.0.txt) for details.
 
 - [Contributors](http://opentaxsolver.sourceforge.net/credits.html)
