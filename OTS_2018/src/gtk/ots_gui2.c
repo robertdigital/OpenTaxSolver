@@ -168,15 +168,6 @@ char *setform( int formnum )
 }
 
 
-#if (PLATFORM_KIND != Posix_Platform)
- char slashchr='\\';
- char slashstr[]="\\";
-#else
- char slashchr='/';
- char slashstr[]="/";
-#endif
-
-
 void dismiss_general_warning( GtkWidget *wdg, void *data )
 {
  switch (warn_release)
@@ -928,8 +919,8 @@ void read_instructions( int init )
   tline = (char *)malloc( maxstr1 + 10 );
   buf = (char *)calloc( 1, maxstr2 + 10 );
   strcpy( tmpinstrfname, ots_path );
-  strcat( tmpinstrfname, "src" );  strcat( tmpinstrfname, slashstr );
-  strcat( tmpinstrfname, "formdata" ); strcat( tmpinstrfname, slashstr );
+  strcat( tmpinstrfname, "src/" );
+  strcat( tmpinstrfname, "formdata/" );
   strcat( tmpinstrfname, instructions_filename );
   if (verbose) printf("Opening: '%s'\n", tmpinstrfname );
 
@@ -2132,21 +2123,21 @@ void set_invocation_path( char *toolpath )
  int k;
  strcpy(tmpstr, invocation_path);
  k = strlen(tmpstr)-1;
- while ((k > 0) && (tmpstr[k] != slashchr)) k--;
+ while ((k > 0) && (tmpstr[k] != '/')) k--;
  if (k > 0) k--;
- while ((k > 0) && (tmpstr[k] != slashchr)) k--;
- if (tmpstr[k] == slashchr)
+ while ((k > 0) && (tmpstr[k] != '/')) k--;
+ if (tmpstr[k] == '/')
   tmpstr[k+1] = '\0';
  else
 #if (PLATFORM_KIND==Posix_Platform)
-   {sprintf(tmpstr,".%c", slashchr);}
+   {sprintf(tmpstr,"./");}
   if (strstr( invocation_path, "bin" ) != 0)
-   sprintf( toolpath, "%sbin%c", tmpstr, slashchr);
+   sprintf( toolpath, "%sbin/", tmpstr);
   else
    strcpy( toolpath, "./" );
  #else
    tmpstr[k] = '\0';
-  sprintf( toolpath, "%sbin%c", tmpstr, slashchr);
+  sprintf( toolpath, "%sbin/", tmpstr);
  #endif
 }
 
@@ -2861,15 +2852,15 @@ void prepare_universal_pdf_cmd( char *options, char *metadata, char *wrkingfname
  strcat( fillout_pdf_command, options );
  strcat( fillout_pdf_command, " " );
  strcpy( tmpmetadata, ots_path );
- strcat( tmpmetadata, "src" );  strcat( tmpmetadata, slashstr );
- strcat( tmpmetadata, "formdata" ); strcat( tmpmetadata, slashstr );
+ strcat( tmpmetadata, "src/" );
+ strcat( tmpmetadata, "formdata/" );
  strcat( tmpmetadata, metadata );
  quote_file_name( tmpmetadata );
  strcpy( tmpwrkingfname, wrkingfname );
  quote_file_name( tmpwrkingfname );
  strcpy( tmpmarkedpdf, ots_path );
- strcat( tmpmarkedpdf, "src" );  strcat( tmpmarkedpdf, slashstr );
- strcat( tmpmarkedpdf, "formdata" ); strcat( tmpmarkedpdf, slashstr );
+ strcat( tmpmarkedpdf, "src/" );
+ strcat( tmpmarkedpdf, "formdata/" );
  strcat( tmpmarkedpdf, markedpdf );
  quote_file_name( tmpmarkedpdf );
  strcat( fillout_pdf_command, tmpmetadata );
@@ -3238,12 +3229,12 @@ void slcttxprog( GtkWidget *wdg, void *data )
 
    strcpy(tmpstr, invocation_path);
    k = strlen(tmpstr)-1;
-   while ((k > 0) && (tmpstr[k] != slashchr)) k--;
+   while ((k > 0) && (tmpstr[k] != '/')) k--;
    if (k > 0) k--;
-   while ((k > 0) && (tmpstr[k] != slashchr)) k--;
-   if (tmpstr[k] == slashchr)  tmpstr[k+1] = '\0';
-   else  {sprintf(tmpstr,".%c", slashchr);}
-   sprintf(directory_dat, "%stax_form_files%c", tmpstr, slashchr);
+   while ((k > 0) && (tmpstr[k] != '/')) k--;
+   if (tmpstr[k] == '/')  tmpstr[k+1] = '\0';
+   else  {sprintf(tmpstr,"./");}
+   sprintf(directory_dat, "%stax_form_files/", tmpstr);
 
    return;
   }
@@ -3258,12 +3249,12 @@ void slcttxprog( GtkWidget *wdg, void *data )
 
    strcpy(tmpstr, invocation_path);
    k = strlen(tmpstr)-1;
-   while ((k > 0) && (tmpstr[k] != slashchr)) k--;
+   while ((k > 0) && (tmpstr[k] != '/')) k--;
    if (k > 0) k--;
-   while ((k > 0) && (tmpstr[k] != slashchr)) k--;
-   if (tmpstr[k] == slashchr)  tmpstr[k+1] = '\0';
-   else  {sprintf(tmpstr,".%c", slashchr);}
-   sprintf(directory_dat, "%stax_form_files%c", tmpstr, slashchr);
+   while ((k > 0) && (tmpstr[k] != '/')) k--;
+   if (tmpstr[k] == '/')  tmpstr[k+1] = '\0';
+   else  {sprintf(tmpstr,"./");}
+   sprintf(directory_dat, "%stax_form_files/", tmpstr);
 
    sel = strstr( strg, "_" TAX_YEAR );
    if (sel != 0)
@@ -3420,8 +3411,8 @@ void pick_file( GtkWidget *wdg, void *data )
   // gtk_file_filter_add_custom( rule, 15, filterfunc, 0, 0 );
 
   j = strlen( directory_dat );
-  if ((j > 0) && (directory_dat[j-1] != slashchr))
-   strcat( directory_dat, slashstr );
+  if ((j > 0) && (directory_dat[j-1] != '/'))
+   strcat( directory_dat, "/" );
   if (verbose) printf("BrowsePath = '%s'\n", directory_dat );
   fb_clear_banned_files();
   fb_ban_files( "_out.txt" );
@@ -3448,8 +3439,8 @@ void pick_template( GtkWidget *wdg, void *data )
   // gtk_file_filter_add_custom( rule, 15, filterfunc, 0, 0 );
 
   j = strlen( directory_dat );
-  if ((j > 0) && (directory_dat[j-1] != slashchr))
-   strcat( directory_dat, slashstr );
+  if ((j > 0) && (directory_dat[j-1] != '/'))
+   strcat( directory_dat, "/" );
   if (verbose) printf("BrowsePath = '%s'\n", directory_dat );
   fb_clear_banned_files();
   fb_ban_files( "_out.txt" );
@@ -3498,7 +3489,7 @@ void set_ots_path()
  ots_path = strdup( invocation_path );
  j = strlen( ots_path ) - 1;
  while ((j >= 0) && (strstr( &(ots_path[j]), "bin" ) != &(ots_path[j]))) j--;
- if (j < 0) { ots_path = strdup( "./" );  ots_path[1] = slashchr; }
+ if (j < 0) { ots_path = strdup( "./" );  ots_path[1] = '/'; }
  else
  if ((j > 1) && (ots_path[j-1] == 's')) ots_path[j-2] = '\0';
  else ots_path[j] = '\0';
@@ -3566,8 +3557,8 @@ int main(int argc, char *argv[] )
  start_cmd = strdup(argv[0]);
  invocation_path = strdup(argv[0]);
  k = strlen(invocation_path)-1;
- while ((k>0) && (invocation_path[k]!=slashchr)) k--;
- if (invocation_path[k]==slashchr) k++;
+ while ((k>0) && (invocation_path[k] != '/')) k--;
+ if (invocation_path[k] == '/') k++;
  invocation_path[k] = '\0';
  // printf("Invocation path = '%s'\n", invocation_path);
  set_ots_path();
@@ -3603,12 +3594,12 @@ int main(int argc, char *argv[] )
 
     strcpy(tmpstr, invocation_path);
     kx = strlen(tmpstr)-1;
-    while ((kx > 0) && (tmpstr[kx] != slashchr)) kx--;
+    while ((kx > 0) && (tmpstr[kx] != '/')) kx--;
     if (kx > 0) kx--;
-    while ((kx > 0) && (tmpstr[kx] != slashchr)) kx--;
-    if (tmpstr[kx] == slashchr)  tmpstr[kx+1] = '\0';
-    else  {sprintf(tmpstr,".%c", slashchr);}
-    sprintf(directory_dat, "%stax_form_files%c", tmpstr, slashchr);
+    while ((kx > 0) && (tmpstr[kx] != '/')) kx--;
+    if (tmpstr[kx] == '/')  tmpstr[kx+1] = '\0';
+    else  {sprintf(tmpstr,"./");}
+    sprintf(directory_dat, "%stax_form_files/", tmpstr);
     selected_form = form_other;
     ok_slcttxprog = 0;
    }
