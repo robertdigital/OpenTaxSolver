@@ -1,5 +1,5 @@
 /* ------------------------ Begin File Browser --------------------------*/
-/* (The Default Gtk file browser widget was confusing for users, and did not 
+/* (The Default Gtk file browser widget was confusing for users, and did not
     offer the file filtering and date-display flexibility we need.  So we built
     a better one here, which does exactly what we need it to.)
 */
@@ -178,7 +178,7 @@ void fb_next_word( char *line, char *word, char *delim )
  #define FB_RTN_CHR '\n'	/* Character returned by carriage-return key. */
 #endif
 
- 
+
 void fb_shorten_string_at_front( char *string, int n )
 { int k=0;
   do { string[k] = string[k+n];  k++; }
@@ -278,7 +278,7 @@ void fb_reduce_pathname( char *fname )
 
 void fb_EnvironVarFilter( char *fname )
 { /* Intercept and replace any defined environment variables in file-names. */
- int k=0, j, m, n, p, seppt=1; 
+ int k=0, j, m, n, p, seppt=1;
  char twrd[2048], *evar;
 
  if (strchr(fname,'$') == 0) return;
@@ -311,7 +311,7 @@ void fb_EnvironVarFilter( char *fname )
 	p = 0;  /* Copy evar into position. */
 	while (evar[p] != '\0') fname[k++] = evar[p++];
        }
-      else 
+      else
        k = m;
      } /*replace_envvar*/
     else
@@ -367,7 +367,7 @@ void fb_accept( GtkWidget *widget, gpointer data ) /* Determine if selected file
   { /*Regular_file*/
    if (erno != 0) printf("File does not exist: '%s'\n", pathname );
    FB_DEBUG printf("Returning1 filename '%s'\n", pathname );
-   if ((erno == 0) && (fb_dirsonly) && (!S_ISDIR(buf.st_mode)) && (! fb_allowfiles)) 
+   if ((erno == 0) && (fb_dirsonly) && (!S_ISDIR(buf.st_mode)) && (! fb_allowfiles))
     { free(pathname);  return; }
    FB_DEBUG printf("Returning2 filename '%s'\n", pathname );
    cancel_fbwindow(0,0);	/* Close the fbrowser window. */
@@ -423,7 +423,7 @@ void fb_select_and_go( GtkWidget *widget, gpointer fname )
  modify_formbox( fb_filename_formbox, name );
  strcpy( fb_Selected[1], fb_Selected[0] );
  strcpy( fb_Selected[0], name );
- fb_dirname[0] = '\0'; 
+ fb_dirname[0] = '\0';
  fb_select( 0, fname );
  fb_accept( 0, "x" );	  /* The "x" give non-null argument allowing immediate fb-redraw. */
 }
@@ -475,7 +475,7 @@ struct fb_directory_item *fb_new_dirlist_item( char *fname, int sz, time_t filed
 
 int fb_wildcard_match( char *fname, char *wildcards[] )
 {
- int j=0; 
+ int j=0;
  while ((wildcards[j] != 0) && (strstr(fname, wildcards[j]) == 0)) j++;
  if (wildcards[j] != 0) return 1; else return 0;
 }
@@ -560,7 +560,7 @@ void renderBrowseFiles0( char *prompt, int maxlength, char *directory, char *wil
   }
 
  fb_selection_count = 0;
- mylist = make_multicolumn_selection_list( fbrowser_frame, 5, 26, fbwinwidth - 10, fbwinheight - 145, 
+ mylist = make_multicolumn_selection_list( fbrowser_frame, 5, 26, fbwinwidth - 10, fbwinheight - 145,
 				FB_COLUMNS, headings, fb_select, fb_accept, 0 );
  for (j=0; j < FB_COLUMNS; j++) dir_row[j] = (char *)calloc( 1, 200 );
 
@@ -695,7 +695,7 @@ void renderBrowseFiles0( char *prompt, int maxlength, char *directory, char *wil
 	month_value = time_struct->tm_mon;
 	if ((month_value < 0) || (month_value > 11)) { printf("ERROR: BAD MONTH %d for file %s\n", month_value, pathname );  month_value = 12; }
 	if ((!fb_dirsonly) || (fb_allowfiles))
-	 { 
+	 {
 	  column = 0;
 	  strcpy( dir_row[column++]," ");
 	  #if (SHOWFILESIZE == 1)
@@ -710,7 +710,7 @@ void renderBrowseFiles0( char *prompt, int maxlength, char *directory, char *wil
 	  strcat( dir_row[column++], twrd1 );
 	  free( dir_row[column] );
 	  dir_row[column] = strdup( flstptr->filename );
-          add_multicolumn_selection_item( mylist, FB_COLUMNS, dir_row ); 
+          add_multicolumn_selection_item( mylist, FB_COLUMNS, dir_row );
 	  n_entries++;
 	 }
 	olditem = flstptr;
@@ -737,7 +737,7 @@ void renderBrowseFiles0( char *prompt, int maxlength, char *directory, char *wil
     }
    frmbx_wdth_pix = fbwinwidth - 30 - 25;
   }
- else 
+ else
    frmbx_wdth_pix = fbwinwidth - 30;
  fb_filename_formbox = make_formbox_bypix( fbrowser_frame, 25, ypos, frmbx_wdth_pix, filename, maxlength, fb_accept, 0 );
 

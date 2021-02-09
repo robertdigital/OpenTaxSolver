@@ -25,7 +25,7 @@ GtkWidget *outer_window=0;
 /* shorter than the allocated length of dst, just like regular strcpy.          */
 /********************************************************************************/
 void strcpy_safe( char *dst, const char *src, int maxlen )
-{ 
+{
   int j=0, oneless;
   oneless = maxlen - 1;
   while ((j < oneless) && (src[j] != '\0')) { dst[j] = src[j];  j++; }
@@ -138,11 +138,11 @@ unsigned char cxhexpair( char *x )
  if (x[0] <= '9')  val = x[0] - 48;
  else
  if (x[0] <= 'F')  val = x[0] - 55;
- else	val = x[0] - 87;
+ else val = x[0] - 87;
  if (x[1] <= '9')  val = (val << 4) + x[1] - 48;
  else
  if (x[1] <= 'F')  val = (val << 4) + x[1] - 55;
- else	val = (val << 4) + x[1] - 87;
+ else val = (val << 4) + x[1] - 87;
  return val;
 }
 
@@ -170,7 +170,7 @@ unsigned char *decode_xpm( const char **xpm_icon, int *wd, int *ht )
    k = line[0];
    if (cppx > 1) { k = (k << 8) + line[1];  pp = 2; }
    else pp = 1;
-   cxpm_next_word( &(line[pp]), word, " \t" );	/* Should have "c". */
+   cxpm_next_word( &(line[pp]), word, " \t" ); /* Should have "c". */
    cxpm_next_word( &(line[pp]), word, " \t" );
    if (word[0] == '#')
     {
@@ -195,14 +195,14 @@ unsigned char *decode_xpm( const char **xpm_icon, int *wd, int *ht )
      img[mm++] = btab[pp];
     }
   }
- free( rtab );	free( gtab );	free( btab );
+ free( rtab ); free( gtab ); free( btab );
  return img;
 }
 
 
 GtkWidget *make_button_wicon( GtkWidget *panel, int xpos, int ypos, const char **icon, void callback(GtkWidget *, void *), void *data )
 {  /* Be sure to somewhere set:  g_object_set( gtk_settings_get_default(), "gtk-button-images", TRUE, NULL); */
- GtkWidget *bpanel, *button, *image;	/* To use, "#include" an xpm image file of icon. */ 
+ GtkWidget *bpanel, *button, *image;	/* To use, "#include" an xpm image file of icon. */
  GdkPixbuf *pixbuf;			/*  Make sure variable-name at top of data declaration matches "icon" name */
 					/*  called in this function.  (You call it with that variable name.) */
  int wd, ht;
@@ -224,9 +224,9 @@ GtkWidget *make_button_wicon( GtkWidget *panel, int xpos, int ypos, const char *
 #if (0)
 	GtkWidget *make_button_wicon_old( GtkWidget *panel, int xpos, int ypos, const char **icon, void callback(GtkWidget *, void *), void *data )
 	{  /* Be sure to somewhere set:  g_object_set( gtk_settings_get_default(), "gtk-button-images", TRUE, NULL); */
-	 GtkWidget *bpanel, *button, *image;	/* To use, "#include" an xpm image file of icon. */ 
-	 GdkPixbuf *pixbuf;			/*  Make sure variable-name at top of data declaration matches "icon" name */
-						/*  called in this function.  (You call it with that variable name.) */
+	 GtkWidget *bpanel, *button, *image;	/* To use, "#include" an xpm image file of icon. */
+	 GdkPixbuf *pixbuf;						/*  Make sure variable-name at top of data declaration matches "icon" name */
+											/*  called in this function.  (You call it with that variable name.) */
 	 bpanel = gtk_fixed_new();
 	 gtk_fixed_put( GTK_FIXED( panel ), bpanel, xpos, ypos );
 	 button = gtk_button_new();
@@ -240,7 +240,7 @@ GtkWidget *make_button_wicon( GtkWidget *panel, int xpos, int ypos, const char *
 	}
 #endif
 
-GtkWidget *make_button_wsizedcolor_text( GtkWidget *panel, int xpos, int ypos, const char *text, float fontsize, 
+GtkWidget *make_button_wsizedcolor_text( GtkWidget *panel, int xpos, int ypos, const char *text, float fontsize,
 					 const char *color_value, void callback(GtkWidget *, void *), void *data )
 {
  GtkWidget *bpanel, *button, *label;
@@ -258,7 +258,7 @@ GtkWidget *make_button_wsizedcolor_text( GtkWidget *panel, int xpos, int ypos, c
   {
    gdk_color_parse( color_value, &color );
    gtk_widget_modify_fg( label, GTK_STATE_NORMAL, &color );
-  }  
+  }
  free( tmptxt );
  gtk_container_add( GTK_CONTAINER( button ), label );
  if (callback != 0)
@@ -327,7 +327,7 @@ void set_toggle_button( GtkWidget *toggle_button, int state )
  float charsperpix=0.109;
  GtkWidget *current_formbox;
 
-GtkEntry *make_formbox( GtkWidget *panel, int xpos, int ypos, int nchars_wide, const char *text, int maxlen, 
+GtkEntry *make_formbox( GtkWidget *panel, int xpos, int ypos, int nchars_wide, const char *text, int maxlen,
 		       void callback(GtkWidget *, void *), void *data )
 {
  GtkWidget *formbox, *bpanel;
@@ -345,7 +345,7 @@ GtkEntry *make_formbox( GtkWidget *panel, int xpos, int ypos, int nchars_wide, c
 }
 
 
-GtkEntry *make_formbox_bypix( GtkWidget *panel, int xpos, int ypos, int npix_wide, const char *text, int maxlen, 
+GtkEntry *make_formbox_bypix( GtkWidget *panel, int xpos, int ypos, int npix_wide, const char *text, int maxlen,
 		       void callback(GtkWidget *, void *), void *data )
 {
  int nchars;
@@ -476,7 +476,7 @@ void get_text_edit_box( GtkTextView *textview, char *rtrnstrng, int maxlen )
 
 
 /* ------------- GTK Slider Routines ----------------- */
- 
+
 GtkWidget *make_slider( GtkWidget *panel, int xpos, int ypos, int size, char orien, double min, double initval, double max, \
 			void callback(GtkWidget *, void *), void *data )
 { /* Read double value with:  x = gtk_range_get_value( GTK_RANGE( slider ) );	*/
@@ -515,7 +515,7 @@ GtkWidget *make_slider( GtkWidget *panel, int xpos, int ypos, int size, char ori
 
 void adjust_slider( GtkWidget *slider, double newvalue )
 {
- gtk_range_set_value( GTK_RANGE(slider), newvalue ); 
+ gtk_range_set_value( GTK_RANGE(slider), newvalue );
 }
 
 /* ------------- End GTK Slider Routines ----------------- */
@@ -525,7 +525,7 @@ void adjust_slider( GtkWidget *slider, double newvalue )
 
 /* ------------- GTK FormBoxWithSuggestor ------------------- */
 
-GtkSpinButton *make_FormBoxWithSuggestor( GtkWidget *panel, int xpos, int ypos, float min, 
+GtkSpinButton *make_FormBoxWithSuggestor( GtkWidget *panel, int xpos, int ypos, float min,
 					  float initval, float max, float step, int ndigits )
 {
   GtkWidget *bpanel;
@@ -540,7 +540,7 @@ GtkSpinButton *make_FormBoxWithSuggestor( GtkWidget *panel, int xpos, int ypos, 
 }
 
 
-GtkSpinButton *make_FormBoxWithSuggestor_bypix( GtkWidget *panel, int xpos, int ypos, int w1, float min, 
+GtkSpinButton *make_FormBoxWithSuggestor_bypix( GtkWidget *panel, int xpos, int ypos, int w1, float min,
 						float initval, float max, float step, int ndigits )
 {
   GtkWidget *bpanel;
@@ -616,7 +616,7 @@ void add_form_suggestion( GtkWidget *combobox, char *text )
 
 	/* Example to read value from:   frmbx2 = make_formbox_wcombo( panel, x, y, 30 );
 		word = strdup( gtk_entry_get_text( GTK_ENTRY( gtk_bin_get_child( GTK_BIN( frmbx2 ) ) ) ) );
-	*/ 
+	*/
 
 
 /* ------------- End GTK FormBoxWithSuggestor ------------------- */
@@ -691,7 +691,7 @@ GtkWidget *most_recent_selector_box=0, *LastBpanel;
 GtkTreeStore *make_selection_list( GtkWidget *panel, int xpos, int ypos, int width, int height, const char *column_titles,
 				  void callback(GtkWidget *, void *), void dclick_callback(GtkWidget *, void *), void *data )
 {
- GtkWidget *bpanel, *scroll_window, *tree; 
+ GtkWidget *bpanel, *scroll_window, *tree;
  GtkTreeStore *list;
  GtkCellRenderer *renderer;
  GtkTreeViewColumn *column;
@@ -775,11 +775,11 @@ char *get_selection_from_list( GtkWidget *selection )
 	}
 */
 
-GtkTreeStore *make_multicolumn_selection_list( GtkWidget *panel, int xpos, int ypos, int width, int height, 
+GtkTreeStore *make_multicolumn_selection_list( GtkWidget *panel, int xpos, int ypos, int width, int height,
 		int ncols, const char *column_titles[],
                 void callback(GtkWidget *, void *), void dclick_callback(GtkWidget *, void *), void *data )
 {
- GtkWidget *bpanel, *scroll_window, *tree; 
+ GtkWidget *bpanel, *scroll_window, *tree;
  GtkTreeStore *list;
  GtkCellRenderer *renderer;
  GtkTreeViewColumn *column;
@@ -797,7 +797,7 @@ GtkTreeStore *make_multicolumn_selection_list( GtkWidget *panel, int xpos, int y
    case 8:  list = gtk_tree_store_new( ncols, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING );	break;
    case 9:  list = gtk_tree_store_new( ncols, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING );	break;
    case 10:  list = gtk_tree_store_new( ncols, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING );	break;
-   default:  printf("Number of columns %d not supported.\n", ncols );  exit(1); 
+   default:  printf("Number of columns %d not supported.\n", ncols );  exit(1);
   }
  bpanel = gtk_fixed_new();
  gtk_fixed_put( GTK_FIXED( panel ), bpanel, xpos, ypos );
@@ -841,7 +841,7 @@ void add_multicolumn_selection_item( GtkTreeStore *selst, int ncols, char *items
    case 8: gtk_tree_store_set( selst, &iter, 0, items[0], 1, items[1], 2, items[2], 3, items[3], 4, items[4], 5, items[5], 6, items[6], 7, items[7], -1 );  break;
    case 9: gtk_tree_store_set( selst, &iter, 0, items[0], 1, items[1], 2, items[2], 3, items[3], 4, items[4], 5, items[5], 6, items[6], 7, items[7], 8, items[8], -1 );  break;
    case 10: gtk_tree_store_set( selst, &iter, 0, items[0], 1, items[1], 2, items[2], 3, items[3], 4, items[4], 5, items[5], 6, items[6], 7, items[7], 8, items[8], 9, items[9], -1 );  break;
-   default:  printf("Number of columns %d not supported.\n", ncols );  exit(1); 
+   default:  printf("Number of columns %d not supported.\n", ncols );  exit(1);
   }
 }
 
@@ -866,11 +866,11 @@ void add_multicolumn_selection_item( GtkTreeStore *selst, int ncols, char *items
 	   void dclicked_item( GtkWidget *wdg, void *data )
 	   { printf("Dclicked '%s', for %s.\n", MY_Selected_item, MY_Selected_list ); }
 
-	  ... 
+	  ...
 	  GtkTreeStore *selst;
 	  const char *headings[]={ "T1", "D2", "P3" };
 	  char *items[];
-	  selst = make_multicolumn_selection_list( winpanel, 200, 30, 180, 150, 3, headings, 
+	  selst = make_multicolumn_selection_list( winpanel, 200, 30, 180, 150, 3, headings,
                                          selected_item, dclicked_item, "chartA" );
 	  items[0] = "Fries";  items[1] = "Shake";  items[2] = "Cola";
 	  add_multicolumn_selection_item( selst, 3, iems );
@@ -981,7 +981,7 @@ GtkWidget *make_window_wkill( int width, int height, const char *title, GtkWidge
 }
 
 	/* Like above, but set horz/vert-scroll to 1 or 0, to enable or disable respective scroll. */
-GtkWidget *make_scrolled_window_wkill( int width, int height, const char *title, GtkWidget *(*winptr), 
+GtkWidget *make_scrolled_window_wkill( int width, int height, const char *title, GtkWidget *(*winptr),
 				      int horzscroll, int vertscroll, int callback(GtkWidget *, void *) )
 {	/* You must call "show_wind(winptr)" after creating all widgets under this window!! */
  GtkWidget *winframe, *swin;
@@ -1028,7 +1028,7 @@ GtkWidget *init_top_outer_window( int *argc, char ***argv, int winwidth, int win
    gtk_container_add( GTK_CONTAINER( outer_window ), swin );
   }
  else
-  gtk_container_add( GTK_CONTAINER( outer_window ), outer_frame ); 
+  gtk_container_add( GTK_CONTAINER( outer_window ), outer_frame );
  return outer_frame;
 }
 
@@ -1166,7 +1166,7 @@ int cdti_read_binary_number( char *data, int *indx )
    ch = cdti_get_next_byte( data, indx );
    if (ch == '#') while (cdti_get_next_byte( data, indx ) != '\n');
   }
- while (ch == '#'); 
+ while (ch == '#');
  while ((ch >= '0') && (ch <= '9'))
   {
    k = (ch - '0') + 10 * k;
@@ -1238,7 +1238,7 @@ GtkWidget *file_browser_popup( const char *dir, const char *text, void callback(
 }
 
 
-	/* Example usage: 
+	/* Example usage:
 	   void receive_filename( GtkWidget *wdg, void *fs )
 	    {
 	     char *yourfilename;
@@ -1294,7 +1294,7 @@ GTimer *mytimer=0;
 
 double Report_Time()	/* Reports time in seconds, accurate to millisecs, for checking time differences. */
 {
-  if (mytimer==0) 
+  if (mytimer==0)
    {
     mytimer = g_timer_new();
     g_timer_start( mytimer );
@@ -1316,18 +1316,18 @@ void Sleep_seconds( float dt_seconds )
 
 /* --------------- Back-compatibility Stuff ------------ */
 
-GtkEntry *new_formbox( GtkWidget *panel, int xpos, int ypos, int nchars_wide, const char *text, int maxlen, 
+GtkEntry *new_formbox( GtkWidget *panel, int xpos, int ypos, int nchars_wide, const char *text, int maxlen,
 				 void callback(GtkWidget *, void *), void *data )
  { return make_formbox( panel, xpos, ypos, nchars_wide, text, maxlen, callback, data ); }
 
-GtkEntry *new_formbox_bypix( GtkWidget *panel, int xpos, int ypos, int npix_wide, const char *text, int maxlen, 
+GtkEntry *new_formbox_bypix( GtkWidget *panel, int xpos, int ypos, int npix_wide, const char *text, int maxlen,
                        void callback(GtkWidget *, void *), void *data )
  { return make_formbox_bypix( panel, xpos, ypos, npix_wide, text, maxlen, callback, data ); }
 
 GtkTextView *new_text_edit_box( GtkWidget *panel, int xpos, int ypos, int width, int height, const char *text )
  { return make_text_edit_box( panel, xpos, ypos, width, height, text ); }
 
-GtkTreeStore *new_selection_list( GtkWidget *panel, int xpos, int ypos, int width, int height, const char *column_titles, 
+GtkTreeStore *new_selection_list( GtkWidget *panel, int xpos, int ypos, int width, int height, const char *column_titles,
 				  void callback(GtkWidget *, void *), void dclick_callback(GtkWidget *, void *), void *data )
  { return make_selection_list( panel, xpos, ypos, width, height, column_titles, callback, dclick_callback, data ); }
 
@@ -1337,7 +1337,7 @@ GtkWidget *new_window( int width, int height, const char *title, GtkWidget *(*wi
 GtkWidget *new_window_wkill( int width, int height, const char *title, GtkWidget *(*winptr), int callback(GtkWidget *, void *) )
  { return make_window_wkill( width, height, title, winptr, callback ); }
 
-GtkWidget *new_scrolled_window_wkill( int width, int height, const char *title, GtkWidget *(*winptr), 
+GtkWidget *new_scrolled_window_wkill( int width, int height, const char *title, GtkWidget *(*winptr),
                                       int horzscroll, int vertscroll, int callback(GtkWidget *, void *) )
  { return make_scrolled_window_wkill( width, height, title, winptr, horzscroll, vertscroll, callback ); }
 

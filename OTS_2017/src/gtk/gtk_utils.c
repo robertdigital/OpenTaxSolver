@@ -25,7 +25,7 @@ GtkWidget *outer_window=0;
 /* shorter than the allocated length of dst, just like regular strcpy.          */
 /********************************************************************************/
 void strcpy_safe( char *dst, const char *src, int maxlen )
-{ 
+{
   int j=0, oneless;
   oneless = maxlen - 1;
   while ((j < oneless) && (src[j] != '\0')) { dst[j] = src[j];  j++; }
@@ -104,24 +104,143 @@ GtkWidget *make_button( GtkWidget *panel, int xpos, int ypos, const char *label,
  return button;
 }
 
+
+void cxpm_next_word( char *line, char *word, char *delim )
+{
+ int i=0, j=0, m=0, nodelim=1;
+ while ((line[i]!='\0') && (nodelim))  /* Consume any preceding white-space. */
+  {
+   j = 0;
+   while ((delim[j]!='\0') && (line[i]!=delim[j])) j = j + 1;
+   if (line[i]==delim[j]) { i = i + 1; } else  nodelim = 0;
+  }
+ while ((line[i]!='\0') && (!nodelim)) /* Copy the word until the next delimiter. */
+  {
+   word[m++] = line[i++];
+   if (line[i]!='\0')
+    {
+     j = 0;
+     while ((delim[j]!='\0') && (line[i]!=delim[j])) j = j + 1;
+     if (line[i]==delim[j]) nodelim = 1;
+    }
+  }
+ j = 0;  /* Shorten line. */
+ while (line[i]!='\0') { line[j++] = line[i++]; }
+ /* Terminate the char-strings. */
+ line[j] = '\0';
+ word[m] = '\0';
+}
+
+
+unsigned char cxhexpair( char *x )
+{
+ unsigned char val;
+ if (x[0] <= '9')  val = x[0] - 48;
+ else
+ if (x[0] <= 'F')  val = x[0] - 55;
+ else val = x[0] - 87;
+ if (x[1] <= '9')  val = (val << 4) + x[1] - 48;
+ else
+ if (x[1] <= 'F')  val = (val << 4) + x[1] - 55;
+ else val = (val << 4) + x[1] - 87;
+ return val;
+}
+
+unsigned char *decode_xpm( const char **xpm_icon, int *wd, int *ht )
+{
+ int j, k, mm=0, ncolors, cppx, tabsz=256, pp;
+ char line[100], word[100];
+ unsigned char *rtab, *gtab, *btab, *img;
+ strcpy( line, xpm_icon[0] );
+ cxpm_next_word( line, word, " \t" );
+ if (sscanf( word, "%d", wd ) != 1) { printf("Error reading wd '%s'\n", word ); exit(1); }
+ cxpm_next_word( line, word, " \t" );
+ if (sscanf( word, "%d", ht ) != 1) { printf("Error reading ht '%s'\n", word );  exit(1); }
+ cxpm_next_word( line, word, " \t" );
+ if (sscanf( word, "%d", &ncolors ) != 1) { printf("Error reading ncolors '%s'\n", word );  exit(1); }
+ cxpm_next_word( line, word, " \t" );
+ if (sscanf( word, "%d", &cppx ) != 1) { printf("Error reading cppx '%s'\n", word );  exit(1); }
+ if (cppx > 1) { tabsz = 256 * tabsz;  if (cppx > 2) { printf("Error cppx of '%d' not supported.\n", cppx );  exit(1); }}
+ rtab = (unsigned char *)malloc( tabsz );
+ gtab = (unsigned char *)malloc( tabsz );
+ btab = (unsigned char *)malloc( tabsz );
+ for (j=1; j <= ncolors; j++)
+  {
+   strcpy( line, xpm_icon[j] );
+   k = line[0];
+   if (cppx > 1) { k = (k << 8) + line[1];  pp = 2; }
+   else pp = 1;
+   cxpm_next_word( &(line[pp]), word, " \t" ); /* Should have "c". */
+   cxpm_next_word( &(line[pp]), word, " \t" );
+   if (word[0] == '#')
+    {
+     rtab[k] = cxhexpair( &(word[1]) );
+     gtab[k] = cxhexpair( &(word[3]) );
+     btab[k] = cxhexpair( &(word[5]) );
+    }
+   else
+    {
+     rtab[k] = 250;  gtab[k] = 0;  btab[k] = 0;
+    }
+  }
+ img = (unsigned char *)malloc( 3 * *wd * *ht );
+ for (j=0; j < *ht; j++)
+  {
+   for (k=0; k < *wd * cppx; k = k + cppx)
+    {
+     pp = xpm_icon[ncolors+1+j][k];
+     if (cppx > 1) pp = (pp << 8) + xpm_icon[ncolors+1+j][k+1];
+     img[mm++] = rtab[pp];
+     img[mm++] = gtab[pp];
+     img[mm++] = btab[pp];
+    }
+  }
+ free( rtab ); free( gtab ); free( btab );
+ return img;
+}
+
+
 GtkWidget *make_button_wicon( GtkWidget *panel, int xpos, int ypos, const char **icon, void callback(GtkWidget *, void *), void *data )
 {  /* Be sure to somewhere set:  g_object_set( gtk_settings_get_default(), "gtk-button-images", TRUE, NULL); */
- GtkWidget *bpanel, *button, *image;	/* To use, "#include" an xpm image file of icon. */ 
+ GtkWidget *bpanel, *button, *image;	/* To use, "#include" an xpm image file of icon. */
  GdkPixbuf *pixbuf;			/*  Make sure variable-name at top of data declaration matches "icon" name */
 					/*  called in this function.  (You call it with that variable name.) */
+ int wd, ht;
+ unsigned char *imgdata;
+
  bpanel = gtk_fixed_new();
  gtk_fixed_put( GTK_FIXED( panel ), bpanel, xpos, ypos );
  button = gtk_button_new();
  if (callback != 0)
   gtk_signal_connect( GTK_OBJECT(button), "clicked", GTK_SIGNAL_FUNC( callback ), data );
  gtk_container_add( GTK_CONTAINER( bpanel ), button );
- pixbuf = gdk_pixbuf_new_from_xpm_data( (const char **)icon );
+ imgdata = decode_xpm( icon, &wd, &ht );
+ pixbuf = gdk_pixbuf_new_from_data( imgdata, GDK_COLORSPACE_RGB, 0, 8, wd, ht, 3 * wd, 0, 0 );
  image = gtk_image_new_from_pixbuf( pixbuf );
  gtk_button_set_image( (GtkButton *)button, image );
  return button;
 }
 
-GtkWidget *make_button_wsizedcolor_text( GtkWidget *panel, int xpos, int ypos, const char *text, float fontsize, 
+#if (0)
+	GtkWidget *make_button_wicon_old( GtkWidget *panel, int xpos, int ypos, const char **icon, void callback(GtkWidget *, void *), void *data )
+	{  /* Be sure to somewhere set:  g_object_set( gtk_settings_get_default(), "gtk-button-images", TRUE, NULL); */
+	 GtkWidget *bpanel, *button, *image;	/* To use, "#include" an xpm image file of icon. */
+	 GdkPixbuf *pixbuf;						/*  Make sure variable-name at top of data declaration matches "icon" name */
+											/*  called in this function.  (You call it with that variable name.) */
+	 bpanel = gtk_fixed_new();
+	 gtk_fixed_put( GTK_FIXED( panel ), bpanel, xpos, ypos );
+	 button = gtk_button_new();
+	 if (callback != 0)
+	  gtk_signal_connect( GTK_OBJECT(button), "clicked", GTK_SIGNAL_FUNC( callback ), data );
+	 gtk_container_add( GTK_CONTAINER( bpanel ), button );
+	 pixbuf = gdk_pixbuf_new_from_xpm_data( (const char **)icon );
+	 image = gtk_image_new_from_pixbuf( pixbuf );
+	 gtk_button_set_image( (GtkButton *)button, image );
+	 return button;
+	}
+#endif
+
+GtkWidget *make_button_wsizedcolor_text( GtkWidget *panel, int xpos, int ypos, const char *text, float fontsize,
 					 const char *color_value, void callback(GtkWidget *, void *), void *data )
 {
  GtkWidget *bpanel, *button, *label;
@@ -139,7 +258,7 @@ GtkWidget *make_button_wsizedcolor_text( GtkWidget *panel, int xpos, int ypos, c
   {
    gdk_color_parse( color_value, &color );
    gtk_widget_modify_fg( label, GTK_STATE_NORMAL, &color );
-  }  
+  }
  free( tmptxt );
  gtk_container_add( GTK_CONTAINER( button ), label );
  if (callback != 0)
@@ -157,7 +276,7 @@ GtkWidget *make_button_wsizedcolor_text( GtkWidget *panel, int xpos, int ypos, c
 
 /* ------------- GTK Radio Button Routines ----------------- */
 
-GtkWidget *make_radio_button( GtkWidget *panel, GtkWidget *group, int xpos, int ypos, const char *label, void callback(GtkWidget *, void *), void *data )
+GtkWidget *make_radio_button( GtkWidget *panel, GtkWidget *group, int xpos, int ypos, const char *label, void callback(GtkWidget *, void *), const void *data )
 {
  GtkWidget *bpanel, *button;
 
@@ -165,7 +284,7 @@ GtkWidget *make_radio_button( GtkWidget *panel, GtkWidget *group, int xpos, int 
  gtk_fixed_put( GTK_FIXED( panel ), bpanel, xpos, ypos );
  button = gtk_radio_button_new_with_label_from_widget( GTK_RADIO_BUTTON( group ), label );
  if (callback != 0)
-  gtk_signal_connect( GTK_OBJECT(button), "clicked", GTK_SIGNAL_FUNC( callback ), data );
+  gtk_signal_connect( GTK_OBJECT(button), "clicked", GTK_SIGNAL_FUNC( callback ), (gpointer)data );
  gtk_container_add( GTK_CONTAINER( bpanel ), button );
  return button;
 }
@@ -208,7 +327,7 @@ void set_toggle_button( GtkWidget *toggle_button, int state )
  float charsperpix=0.109;
  GtkWidget *current_formbox;
 
-GtkEntry *make_formbox( GtkWidget *panel, int xpos, int ypos, int nchars_wide, const char *text, int maxlen, 
+GtkEntry *make_formbox( GtkWidget *panel, int xpos, int ypos, int nchars_wide, const char *text, int maxlen,
 		       void callback(GtkWidget *, void *), void *data )
 {
  GtkWidget *formbox, *bpanel;
@@ -226,7 +345,7 @@ GtkEntry *make_formbox( GtkWidget *panel, int xpos, int ypos, int nchars_wide, c
 }
 
 
-GtkEntry *make_formbox_bypix( GtkWidget *panel, int xpos, int ypos, int npix_wide, const char *text, int maxlen, 
+GtkEntry *make_formbox_bypix( GtkWidget *panel, int xpos, int ypos, int npix_wide, const char *text, int maxlen,
 		       void callback(GtkWidget *, void *), void *data )
 {
  int nchars;
@@ -357,7 +476,7 @@ void get_text_edit_box( GtkTextView *textview, char *rtrnstrng, int maxlen )
 
 
 /* ------------- GTK Slider Routines ----------------- */
- 
+
 GtkWidget *make_slider( GtkWidget *panel, int xpos, int ypos, int size, char orien, double min, double initval, double max, \
 			void callback(GtkWidget *, void *), void *data )
 { /* Read double value with:  x = gtk_range_get_value( GTK_RANGE( slider ) );	*/
@@ -396,7 +515,7 @@ GtkWidget *make_slider( GtkWidget *panel, int xpos, int ypos, int size, char ori
 
 void adjust_slider( GtkWidget *slider, double newvalue )
 {
- gtk_range_set_value( GTK_RANGE(slider), newvalue ); 
+ gtk_range_set_value( GTK_RANGE(slider), newvalue );
 }
 
 /* ------------- End GTK Slider Routines ----------------- */
@@ -406,7 +525,7 @@ void adjust_slider( GtkWidget *slider, double newvalue )
 
 /* ------------- GTK FormBoxWithSuggestor ------------------- */
 
-GtkSpinButton *make_FormBoxWithSuggestor( GtkWidget *panel, int xpos, int ypos, float min, 
+GtkSpinButton *make_FormBoxWithSuggestor( GtkWidget *panel, int xpos, int ypos, float min,
 					  float initval, float max, float step, int ndigits )
 {
   GtkWidget *bpanel;
@@ -421,7 +540,7 @@ GtkSpinButton *make_FormBoxWithSuggestor( GtkWidget *panel, int xpos, int ypos, 
 }
 
 
-GtkSpinButton *make_FormBoxWithSuggestor_bypix( GtkWidget *panel, int xpos, int ypos, int w1, float min, 
+GtkSpinButton *make_FormBoxWithSuggestor_bypix( GtkWidget *panel, int xpos, int ypos, int w1, float min,
 						float initval, float max, float step, int ndigits )
 {
   GtkWidget *bpanel;
@@ -497,7 +616,7 @@ void add_form_suggestion( GtkWidget *combobox, char *text )
 
 	/* Example to read value from:   frmbx2 = make_formbox_wcombo( panel, x, y, 30 );
 		word = strdup( gtk_entry_get_text( GTK_ENTRY( gtk_bin_get_child( GTK_BIN( frmbx2 ) ) ) ) );
-	*/ 
+	*/
 
 
 /* ------------- End GTK FormBoxWithSuggestor ------------------- */
@@ -539,7 +658,7 @@ GtkWidget *add_menu_item( GtkWidget *menu, const char *label, void callback(GtkW
  GtkWidget *menuitem;
  menuitem = gtk_menu_item_new_with_label( label );
  if (callback != 0)
-  gtk_signal_connect( GTK_OBJECT(menuitem), "activate", GTK_SIGNAL_FUNC( callback ), data );
+  gtk_signal_connect( GTK_OBJECT(menuitem), "activate", G_CALLBACK( callback ), data );
  gtk_menu_append( GTK_MENU(menu), menuitem );
  return menuitem;
 }
@@ -572,7 +691,7 @@ GtkWidget *most_recent_selector_box=0, *LastBpanel;
 GtkTreeStore *make_selection_list( GtkWidget *panel, int xpos, int ypos, int width, int height, const char *column_titles,
 				  void callback(GtkWidget *, void *), void dclick_callback(GtkWidget *, void *), void *data )
 {
- GtkWidget *bpanel, *scroll_window, *tree; 
+ GtkWidget *bpanel, *scroll_window, *tree;
  GtkTreeStore *list;
  GtkCellRenderer *renderer;
  GtkTreeViewColumn *column;
@@ -656,11 +775,11 @@ char *get_selection_from_list( GtkWidget *selection )
 	}
 */
 
-GtkTreeStore *make_multicolumn_selection_list( GtkWidget *panel, int xpos, int ypos, int width, int height, 
+GtkTreeStore *make_multicolumn_selection_list( GtkWidget *panel, int xpos, int ypos, int width, int height,
 		int ncols, const char *column_titles[],
                 void callback(GtkWidget *, void *), void dclick_callback(GtkWidget *, void *), void *data )
 {
- GtkWidget *bpanel, *scroll_window, *tree; 
+ GtkWidget *bpanel, *scroll_window, *tree;
  GtkTreeStore *list;
  GtkCellRenderer *renderer;
  GtkTreeViewColumn *column;
@@ -678,7 +797,7 @@ GtkTreeStore *make_multicolumn_selection_list( GtkWidget *panel, int xpos, int y
    case 8:  list = gtk_tree_store_new( ncols, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING );	break;
    case 9:  list = gtk_tree_store_new( ncols, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING );	break;
    case 10:  list = gtk_tree_store_new( ncols, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING );	break;
-   default:  printf("Number of columns %d not supported.\n", ncols );  exit(1); 
+   default:  printf("Number of columns %d not supported.\n", ncols );  exit(1);
   }
  bpanel = gtk_fixed_new();
  gtk_fixed_put( GTK_FIXED( panel ), bpanel, xpos, ypos );
@@ -722,7 +841,7 @@ void add_multicolumn_selection_item( GtkTreeStore *selst, int ncols, char *items
    case 8: gtk_tree_store_set( selst, &iter, 0, items[0], 1, items[1], 2, items[2], 3, items[3], 4, items[4], 5, items[5], 6, items[6], 7, items[7], -1 );  break;
    case 9: gtk_tree_store_set( selst, &iter, 0, items[0], 1, items[1], 2, items[2], 3, items[3], 4, items[4], 5, items[5], 6, items[6], 7, items[7], 8, items[8], -1 );  break;
    case 10: gtk_tree_store_set( selst, &iter, 0, items[0], 1, items[1], 2, items[2], 3, items[3], 4, items[4], 5, items[5], 6, items[6], 7, items[7], 8, items[8], 9, items[9], -1 );  break;
-   default:  printf("Number of columns %d not supported.\n", ncols );  exit(1); 
+   default:  printf("Number of columns %d not supported.\n", ncols );  exit(1);
   }
 }
 
@@ -747,11 +866,11 @@ void add_multicolumn_selection_item( GtkTreeStore *selst, int ncols, char *items
 	   void dclicked_item( GtkWidget *wdg, void *data )
 	   { printf("Dclicked '%s', for %s.\n", MY_Selected_item, MY_Selected_list ); }
 
-	  ... 
+	  ...
 	  GtkTreeStore *selst;
 	  const char *headings[]={ "T1", "D2", "P3" };
 	  char *items[];
-	  selst = make_multicolumn_selection_list( winpanel, 200, 30, 180, 150, 3, headings, 
+	  selst = make_multicolumn_selection_list( winpanel, 200, 30, 180, 150, 3, headings,
                                          selected_item, dclicked_item, "chartA" );
 	  items[0] = "Fries";  items[1] = "Shake";  items[2] = "Cola";
 	  add_multicolumn_selection_item( selst, 3, iems );
@@ -803,12 +922,12 @@ GtkWidget *make_framed_panel( GtkWidget *panel, int xpos, int ypos, int width, i
 
 /* ------------- Sub-Window or (Detachable) Pop-up Window Making Routines ----------------- */
 
-int  window_position_policy=GTK_WIN_POS_CENTER_ON_PARENT,
-     top_window_position_policy=GTK_WIN_POS_CENTER;
+GtkWindowPosition window_position_policy=GTK_WIN_POS_CENTER_ON_PARENT,
+		  top_window_position_policy=GTK_WIN_POS_CENTER;
 
 void close_any_window( GtkWidget *widget, gpointer data )
 {
- GtkWidget *(*win0) = data;
+ GtkWidget *(*win0) = (GtkWidget **)data;
  if (data == 0) { printf("Close_Any_Window: Zero data\n"); return; }
  if (*win0 != 0) gtk_widget_destroy( *win0 );
  *win0 = 0;
@@ -817,7 +936,7 @@ void close_any_window( GtkWidget *widget, gpointer data )
 
 int killed_any_window( GtkWidget *widget, GdkEvent *event, gpointer data )
 {
- GtkWidget *(*win0) = data;
+ GtkWidget *(*win0) = (GtkWidget **)data;
  *win0 = 0;
  return 0;      /* Returning "0" causes window to be destroyed. */
 }
@@ -862,7 +981,7 @@ GtkWidget *make_window_wkill( int width, int height, const char *title, GtkWidge
 }
 
 	/* Like above, but set horz/vert-scroll to 1 or 0, to enable or disable respective scroll. */
-GtkWidget *make_scrolled_window_wkill( int width, int height, const char *title, GtkWidget *(*winptr), 
+GtkWidget *make_scrolled_window_wkill( int width, int height, const char *title, GtkWidget *(*winptr),
 				      int horzscroll, int vertscroll, int callback(GtkWidget *, void *) )
 {	/* You must call "show_wind(winptr)" after creating all widgets under this window!! */
  GtkWidget *winframe, *swin;
@@ -881,7 +1000,7 @@ GtkWidget *make_scrolled_window_wkill( int width, int height, const char *title,
  swin = gtk_scrolled_window_new( 0, 0 );
  if (horzscroll) horzscroll = GTK_POLICY_ALWAYS; else horzscroll = GTK_POLICY_NEVER;
  if (vertscroll) vertscroll = GTK_POLICY_ALWAYS; else vertscroll = GTK_POLICY_NEVER;
- gtk_scrolled_window_set_policy( (GtkScrolledWindow *)swin, horzscroll, vertscroll );
+ gtk_scrolled_window_set_policy( (GtkScrolledWindow *)swin, (GtkPolicyType)horzscroll, (GtkPolicyType)vertscroll );
  gtk_scrolled_window_add_with_viewport( (GtkScrolledWindow *)swin, winframe );
  gtk_container_add( GTK_CONTAINER( *winptr ), swin );
  return winframe;
@@ -904,12 +1023,12 @@ GtkWidget *init_top_outer_window( int *argc, char ***argv, int winwidth, int win
    if (horzscroll) horzscroll = GTK_POLICY_ALWAYS; else horzscroll = GTK_POLICY_NEVER;
    if (vertscroll) vertscroll = GTK_POLICY_ALWAYS; else vertscroll = GTK_POLICY_NEVER;
    swin = gtk_scrolled_window_new( 0, 0 );
-   gtk_scrolled_window_set_policy( (GtkScrolledWindow *)swin, horzscroll, vertscroll );
+   gtk_scrolled_window_set_policy( (GtkScrolledWindow *)swin, (GtkPolicyType)horzscroll, (GtkPolicyType)vertscroll );
    gtk_scrolled_window_add_with_viewport( (GtkScrolledWindow *)swin, outer_frame );
    gtk_container_add( GTK_CONTAINER( outer_window ), swin );
   }
  else
-  gtk_container_add( GTK_CONTAINER( outer_window ), outer_frame ); 
+  gtk_container_add( GTK_CONTAINER( outer_window ), outer_frame );
  return outer_frame;
 }
 
@@ -1047,7 +1166,7 @@ int cdti_read_binary_number( char *data, int *indx )
    ch = cdti_get_next_byte( data, indx );
    if (ch == '#') while (cdti_get_next_byte( data, indx ) != '\n');
   }
- while (ch == '#'); 
+ while (ch == '#');
  while ((ch >= '0') && (ch <= '9'))
   {
    k = (ch - '0') + 10 * k;
@@ -1101,7 +1220,7 @@ GtkTooltips *add_tool_tip( GtkWidget *wdg, const char *text )		/* Adds tool-tip 
 
 /* ------------- File Browser ----------------- */
 
-void canceled_file_browser( GtkWidget *wdg, void *fb ) { gtk_widget_destroy( fb ); }
+void canceled_file_browser( GtkWidget *wdg, void *fb ) { gtk_widget_destroy( (GtkWidget *)fb ); }
 
 char *file_browser_filter=0;
 
@@ -1119,7 +1238,7 @@ GtkWidget *file_browser_popup( const char *dir, const char *text, void callback(
 }
 
 
-	/* Example usage: 
+	/* Example usage:
 	   void receive_filename( GtkWidget *wdg, void *fs )
 	    {
 	     char *yourfilename;
@@ -1131,6 +1250,29 @@ GtkWidget *file_browser_popup( const char *dir, const char *text, void callback(
 
 	   file_browser_popup( ".", "Select File", receive_filename );
 	*/
+
+
+/* ------------- Progress Bar ----------------- */
+
+void adjust_progress_bar( GtkWidget *wdg, double fraction )
+{
+ gtk_progress_bar_set_fraction( (GtkProgressBar *)wdg, fraction );
+}
+
+
+GtkWidget *make_progress_bar( GtkWidget *panel, int xpos, int ypos, int width, char *text )
+{
+ GtkWidget *bpanel, *bar;
+ bpanel = gtk_fixed_new();
+ gtk_fixed_put( GTK_FIXED( panel ), bpanel, xpos, ypos );
+ bar = gtk_progress_bar_new();
+ gtk_progress_bar_set_text( (GtkProgressBar *)bar, text );
+ if (width < 1) width = 150;  /* Assume default width if not specified. */
+ gtk_widget_set_size_request( bar, width, 20 );
+ gtk_container_add( GTK_CONTAINER( bpanel ), bar );
+ return bar;
+}
+
 
 
 /* ------------- General Stuff ----------------- */
@@ -1152,7 +1294,7 @@ GTimer *mytimer=0;
 
 double Report_Time()	/* Reports time in seconds, accurate to millisecs, for checking time differences. */
 {
-  if (mytimer==0) 
+  if (mytimer==0)
    {
     mytimer = g_timer_new();
     g_timer_start( mytimer );
@@ -1174,18 +1316,18 @@ void Sleep_seconds( float dt_seconds )
 
 /* --------------- Back-compatibility Stuff ------------ */
 
-GtkEntry *new_formbox( GtkWidget *panel, int xpos, int ypos, int nchars_wide, const char *text, int maxlen, 
+GtkEntry *new_formbox( GtkWidget *panel, int xpos, int ypos, int nchars_wide, const char *text, int maxlen,
 				 void callback(GtkWidget *, void *), void *data )
  { return make_formbox( panel, xpos, ypos, nchars_wide, text, maxlen, callback, data ); }
 
-GtkEntry *new_formbox_bypix( GtkWidget *panel, int xpos, int ypos, int npix_wide, const char *text, int maxlen, 
+GtkEntry *new_formbox_bypix( GtkWidget *panel, int xpos, int ypos, int npix_wide, const char *text, int maxlen,
                        void callback(GtkWidget *, void *), void *data )
  { return make_formbox_bypix( panel, xpos, ypos, npix_wide, text, maxlen, callback, data ); }
 
 GtkTextView *new_text_edit_box( GtkWidget *panel, int xpos, int ypos, int width, int height, const char *text )
  { return make_text_edit_box( panel, xpos, ypos, width, height, text ); }
 
-GtkTreeStore *new_selection_list( GtkWidget *panel, int xpos, int ypos, int width, int height, const char *column_titles, 
+GtkTreeStore *new_selection_list( GtkWidget *panel, int xpos, int ypos, int width, int height, const char *column_titles,
 				  void callback(GtkWidget *, void *), void dclick_callback(GtkWidget *, void *), void *data )
  { return make_selection_list( panel, xpos, ypos, width, height, column_titles, callback, dclick_callback, data ); }
 
@@ -1195,7 +1337,7 @@ GtkWidget *new_window( int width, int height, const char *title, GtkWidget *(*wi
 GtkWidget *new_window_wkill( int width, int height, const char *title, GtkWidget *(*winptr), int callback(GtkWidget *, void *) )
  { return make_window_wkill( width, height, title, winptr, callback ); }
 
-GtkWidget *new_scrolled_window_wkill( int width, int height, const char *title, GtkWidget *(*winptr), 
+GtkWidget *new_scrolled_window_wkill( int width, int height, const char *title, GtkWidget *(*winptr),
                                       int horzscroll, int vertscroll, int callback(GtkWidget *, void *) )
  { return make_scrolled_window_wkill( width, height, title, winptr, horzscroll, vertscroll, callback ); }
 

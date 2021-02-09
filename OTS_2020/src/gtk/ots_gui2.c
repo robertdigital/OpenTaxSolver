@@ -1,94 +1,89 @@
-/********************************************************/
-/* OTS_GUI.c - OpenTaxSolver Graphical User Interface.	*/
-/* Based on GimpToolKit (Gtk) widgets.			*/
-/*							*/
-/* This version is based on Gtk widgets.		*/
-/*							*/
-/* The OTS_GUI is designed to read-in standard OTS data	*/
-/* files, and present the tax information on your 	*/
-/* screen.  It allows entering the values, saving 	*/
-/* return data, editing previously saved return sheets, */
-/* and running the OTS tax-solver to compute your 	*/
-/* taxes.						*/
-/*							*/
-/* The OTS tax-solver is a text program which can be	*/
-/* used by itself. This GUI front-end simplifies using  */
-/* OTS.  It walks you through the steps and invokes the	*/
-/* regular OTS solver when you are ready.		*/
-/*							*/
-/* OTS data files, for example "tax_xx.txt", contain 	*/
-/* the line numbers (or names) of the entries for a 	*/
-/* given tax form, as well as any previously entered 	*/
-/* values for each line.  Additional comments may 	*/
-/* follow on any line.  				*/
-/* A few example lines follow:				*/
-/*							*/
-/*	L15    	      ;  { Rental income }		*/
-/*	L17    234.00 ;  { Savings interest }		*/
-/*	L18     	 { Dividends }			*/
-/*		23.00    {  Bank1 }			*/
-/*		14.50 ;  {  Work loan }			*/
-/*							*/
-/* OTS_GUI reads these lines and places a label for 	*/
-/* each line number/name, a text-box for filling in the	*/
-/* value(s), and additional labels for the comments.	*/
-/* At the bottom are placed buttons to save and 	*/
-/* calculate-taxes.					*/
-/* 							*/
-/* To compile this graphical program, you will need the */
-/* Gtk library.						*/
-/*							*/
-/* Compile:						*/
-/*  cc -O `pkg-config --cflags gtk+-2.0` ots_gui2.c  \
- 	`pkg-config --libs gtk+-2.0`  -o ots_gui2	*/
-/*							*/
-/********************************************************/
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 
-float version=2.36;
-char package_date[]="Jan. 25, 2021";
-char ots_release_package[]="18.00";
+/*
+ * OpenTaxSolver Graphical User Interface.
+ *
+ * The OTS_GUI is designed to read-in standard OTS data
+ * files, and present the tax information on your
+ * screen.  It allows entering the values, saving
+ * return data, editing previously saved return sheets,
+ * and running the OTS tax-solver to compute your
+ * taxes.
+ *
+ * The OTS tax-solver is a text program which can be
+ * used by itself. This GUI front-end simplifies using
+ * OTS.  It walks you through the steps and invokes the
+ * regular OTS solver when you are ready.
+ *
+ * OTS data files, for example "tax_xx.txt", contain
+ * the line numbers (or names) of the entries for a
+ * given tax form, as well as any previously entered
+ * values for each line.  Additional comments may
+ * follow on any line.
+ * A few example lines follow:
+ *
+ *      L15             ; { Rental income }
+ *      L17     234.00  ; { Savings interest }
+ *      L18               { Dividends }
+ *              23.00     {  Bank1 }
+ *              14.50   ; {  Work loan }
+ *
+ * OTS_GUI reads these lines and places a label for
+ * each line number/name, a text-box for filling in the
+ * value(s), and additional labels for the comments.
+ * At the bottom are placed buttons to save and
+ * calculate-taxes.
+ */
 
-/************************************************************/
-/* Design Notes - 					    */
-/*  Unlike the individual tax programs, which can know	    */
-/*  what to expect on each line, this GUI does not know     */
-/*  about the format of any particular tax form file.	    */
-/*  Therefore, it applies some simple rules to parse	    */
-/*  the fields:						    */
-/*   1. The next non-comment / non-white-space character    */
-/*	after a ";" is interpreted as a line-label.	    */
-/*	(eg. L51)					    */
-/*	However, some lines expecting single values were    */
-/*	not terminated with ";", so other rules are needed. */
-/*   2. Any line with a non-comment / non-white-space char  */
-/*	in column 1 (first char on line), is assumed to be  */
-/*	a line-label.  So all field values should be        */
-/*	indented to use the GUI with them.		    */
-/* Internal Architecture:
-     Main
-      -pick_file
-       -receive_filename
-	-open_taxfile
-	 -Get_New_Tax_Form_Page
-          -Get_Tax_Form_Page
-	   -Read_Tax_File
-	   -Setup_Tax_Form_Page - Creates the window for the form-page.
-	     -DisplayTaxInfo - Renders the interactive form-page.
-	      -check_comments
-*/
-/************************************************************/
+#define TAX_YEAR "2020"
+
+static float version = 2.36;
+static char package_date[] = "Jan. 25, 2021";
+static char ots_release_package[] = "18.00";
+
+/*
+ * Design Notes
+ *
+ * Unlike the individual tax programs, which can know
+ * what to expect on each line, this GUI does not know
+ * about the format of any particular tax form file.
+ * Therefore, it applies some simple rules to parse
+ * the fields:
+ *  1. The next non-comment / non-white-space character
+ * after a ";" is interpreted as a line-label.
+ * (eg. L51)
+ * However, some lines expecting single values were
+ * not terminated with ";", so other rules are needed.
+ *  2. Any line with a non-comment / non-white-space char
+ * in column 1 (first char on line), is assumed to be
+ * a line-label.  So all field values should be
+ * indented to use the GUI with them.
+ *
+ * Internal Architecture:
+ *   Main
+ *    -pick_file
+ *     -receive_filename
+ *      -open_taxfile
+ *       -Get_New_Tax_Form_Page
+ *        -Get_Tax_Form_Page
+ *         -Read_Tax_File
+ *         -Setup_Tax_Form_Page - Creates the window for the form-page.
+ *           -DisplayTaxInfo - Renders the interactive form-page.
+ *            -check_comments
+ */
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <sys/stat.h>
-#include "gtk_utils.c"		/* Include the graphics library. */
+
+#include "gtk_utils.c"
 #include "gtk_file_browser.c"
 
- GtkWidget *mpanel, *mpanel2, *warnwin=0, *popupwin=0, *resultswindow=0, *scrolledpane, *title_label;
- int operating_mode=1, need_to_resize=0, debug=0;
- double last_resize_time;
+GtkWidget *mpanel, *mpanel2, *warnwin=0, *popupwin=0, *resultswindow=0, *scrolledpane, *title_label;
+int operating_mode=1, need_to_resize=0, debug=0;
+double last_resize_time;
 
 int verbose=0;
 int winwidth=450, winht=480;
@@ -141,26 +136,26 @@ char *taxsolvecmd=0, taxsolvestrng[MaxFname]="";
 
 char program_names[30][100] =
 	{
-	 "taxsolve_US_1040_2020",		/* 0 */
-	 "taxsolve_US_1040_Sched_C_2020",	/* 1 */
-	 "taxsolve_US_8829",			/* 2 */
-	 "taxsolve_CA_540_2020",		/* 3 */
-	 "taxsolve_NC_D400_2020",		/* 4 */
-	 "taxsolve_NJ_1040_2020",		/* 5 */
-	 "taxsolve_OH_IT1040_2020",		/* 6 */
-	 "taxsolve_PA_40_2020",			/* 7 */
-	 "taxsolve_VA_760_2020",		/* 8 */
-	 "taxsolve_NY_IT201_2020",		/* 9 */
-	 "taxsolve_MA_1_2020",			/* 10 */
-	 "taxsolve_GA_500",			/* 11 */
-	 "Other",				/* xx */
+	 "taxsolve_US_1040_2020",
+	 "taxsolve_US_1040_Sched_C_2020",
+	 "taxsolve_US_8829",
+	 "taxsolve_CA_540_2020",
+	 "taxsolve_NC_D400_2020",
+	 "taxsolve_NJ_1040_2020",
+	 "taxsolve_OH_IT1040_2020",
+	 "taxsolve_PA_40_2020",
+	 "taxsolve_VA_760_2020",
+	 "taxsolve_NY_IT201_2020",
+	 "taxsolve_MA_1_2020",
+	 "taxsolve_GA_500",
+	 "Other",
 	};
 
 enum form_names { form_US_1040, form_US_1040_Sched_C, form_US_8829, form_CA_540,
 		  form_NC_D400, form_NJ_1040, form_OH_IT1040, form_PA_40,
 		  form_VA_760, form_NY_IT201, form_MA_1, form_GA_500,
 		  form_other,
-		  form_1040e, form_4562, form_8582
+		  form_1040e, form_4562, form_8582,
 		};
 int selected_form=form_other;
 
@@ -3270,7 +3265,7 @@ void slcttxprog( GtkWidget *wdg, void *data )
    else  {sprintf(tmpstr,".%c", slashchr);}
    sprintf(directory_dat, "%stax_form_files%c", tmpstr, slashchr);
 
-   sel = strstr( strg, "_2020" );
+   sel = strstr( strg, "_" TAX_YEAR );
    if (sel != 0)
      sel[0] = '\0';
    strcpy( tmpstr, strg );
@@ -3514,7 +3509,7 @@ void helpabout1( GtkWidget *wdg, void *data )
 {
  char msg[4096];
  sprintf( msg, "OpenTaxSolver (OTS) GUI - Version %1.2f,  %s\n", version, package_date );
- strcat( msg, "                For the 2020 Tax Year.    OTS release ");
+ strcat( msg, "                For the " TAX_YEAR " Tax Year.    OTS release ");
  strcat( msg, ots_release_package );   strcat( msg, "\n\n" );
  strcat( msg, "Use this GUI to open tax-forms and calculate taxes.\n");
  strcat( msg, " 1. First select a tax-form to do from the available programs listed.\n" );
@@ -3537,7 +3532,7 @@ void helpabout2( GtkWidget *wdg, void *data )
 {
  char msg[4096];
  sprintf( msg, "OpenTaxSolver (OTS) GUI - Version %1.2f, %s\n", version, package_date );
- strcat( msg, "                For the 2020 Tax Year.    OTS release ");
+ strcat( msg, "                For the " TAX_YEAR " Tax Year.    OTS release ");
  strcat( msg, ots_release_package );   strcat( msg, "\n\n" );
  strcat( msg, "Use this GUI to fill-out tax forms and calculate taxes.\n");
  strcat( msg, "  1. Fill-out the line entries that apply to you.\n");
@@ -3658,7 +3653,7 @@ int main(int argc, char *argv[] )
  make_rectangular_separator( mpanel, 59, 6, 387, 102 );
 
  y = 105;
- make_sized_label( mpanel, winwidth / 2 - 60, y, "2020 Tax Year", 11.0 );
+ make_sized_label( mpanel, winwidth / 2 - 60, y, TAX_YEAR " Tax Year", 11.0 );
  y = y + 35;
  make_sized_label( mpanel, 10, 135, "Select Tax Program:", 12.0 );
 

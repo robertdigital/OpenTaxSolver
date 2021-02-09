@@ -1,9 +1,6 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 
-#define GtkUtils_Version 1.0
-
-
 /* ------------- Text-Label Routines ----------------- */
 GtkWidget *make_label( GtkWidget *panel, int xpos, int ypos, const char *text );
 
@@ -23,7 +20,7 @@ GtkWidget *make_button_wicon( GtkWidget *panel, int xpos, int ypos, const char *
 
 
 /* ------------- Radio Button Routines ----------------- */
-GtkWidget *make_radio_button( GtkWidget *panel, GtkWidget *group, int xpos, int ypos, const char *label, 
+GtkWidget *make_radio_button( GtkWidget *panel, GtkWidget *group, int xpos, int ypos, const char *label,
 			      void callback(GtkWidget *, void *), const void *data );
 
 void set_radio_button( GtkWidget *radio_button );
@@ -36,10 +33,10 @@ void set_toggle_button( GtkWidget *tog_button, int state );
 
 
 /* ------------- Form-Box (Text-Entry Box) Routines ----------------- */
-GtkEntry *make_formbox( GtkWidget *panel, int xpos, int ypos, int nchars_wide, const char *text, int maxlen, 
+GtkEntry *make_formbox( GtkWidget *panel, int xpos, int ypos, int nchars_wide, const char *text, int maxlen,
 				 void callback(GtkWidget *, void *), void *data );
 
-GtkEntry *make_formbox_bypix( GtkWidget *panel, int xpos, int ypos, int npix_wide, const char *text, int maxlen, 
+GtkEntry *make_formbox_bypix( GtkWidget *panel, int xpos, int ypos, int npix_wide, const char *text, int maxlen,
                        void callback(GtkWidget *, void *), void *data );
 
 void modify_formbox( GtkEntry *formbox, const char *text );
@@ -107,7 +104,7 @@ void modify_menu_label( GtkWidget *menu_label, const char *newtext );	 /* A 'men
 
 /* ------------- GTK Selection List Routines ----------------- */
 
-GtkTreeStore *make_selection_list( GtkWidget *panel, int xpos, int ypos, int width, int height, const char *column_titles, 
+GtkTreeStore *make_selection_list( GtkWidget *panel, int xpos, int ypos, int width, int height, const char *column_titles,
 				  void callback(GtkWidget *, void *), void dclick_callback(GtkWidget *, void *), void *data );
 
 void append_selection_list( GtkTreeStore *list, GtkTreeIter *iter, const char *item );
@@ -123,7 +120,7 @@ char *get_selection_from_list( GtkWidget *selection );
 		 for (j=0; j<10; j++)
 		  append_selection_list( mylist, &iter, text[j] );
 		}
-	
+
 	       void myfunction( GtkWidget *wdg, void *data )
 		{
 		 char *text;
@@ -132,7 +129,7 @@ char *get_selection_from_list( GtkWidget *selection );
 		}
 	*/
 
-GtkTreeStore *make_multicolumn_selection_list( GtkWidget *panel, int xpos, int ypos, int width, int height, 
+GtkTreeStore *make_multicolumn_selection_list( GtkWidget *panel, int xpos, int ypos, int width, int height,
 		int ncols, const char *column_titles[],
 		void callback(GtkWidget *, void *), void dclick_callback(GtkWidget *, void *), void *data );
 void add_multicolumn_selection_item( GtkTreeStore *selst, int ncols, char *items[] );
@@ -160,11 +157,11 @@ void add_multicolumn_selection_item( GtkTreeStore *selst, int ncols, char *items
 	    printf("Dclicked '%s', for %s.\n", MY_Selected_item, MY_Selected_list );
 	   }
 
-	  ... 
+	  ...
 	  GtkTreeStore *selst;
 	  const char *headings[]={ "T1", "D2", "P3" };
 	  char *items[];
-	  selst = make_multicolumn_selection_list( winpanel, 200, 30, 180, 150, 3, headings, 
+	  selst = make_multicolumn_selection_list( winpanel, 200, 30, 180, 150, 3, headings,
                                          selected_item, dclicked_item, "chartA" );
 	  items[0] = "Fries";  items[1] = "Shake";  items[2] = "Cola";
 	  add_multicolumn_selection_item( selst, 3, iems );
@@ -176,7 +173,7 @@ void add_multicolumn_selection_item( GtkTreeStore *selst, int ncols, char *items
 
 /* ------------- GTK FormBoxWithSuggestor ------------------- */
 
-GtkSpinButton *make_FormBoxWithSuggestor( GtkWidget *panel, int xpos, int ypos, float min, float initval, 
+GtkSpinButton *make_FormBoxWithSuggestor( GtkWidget *panel, int xpos, int ypos, float min, float initval,
 					  float max, float step, int ndigits );
 
 float get_FormBoxWithSuggestor_Value( GtkSpinButton *spinbox );
@@ -204,7 +201,7 @@ void add_form_suggestion( GtkWidget *combobox, char *text );
 
 	/* Example to read value from:   frmbx2 = make_formbox_wcombo( panel, x, y, 30 );
 		word = strdup( gtk_entry_get_text( GTK_ENTRY( gtk_bin_get_child( GTK_BIN( frmbx2 ) ) ) ) );
-	*/ 
+	*/
 
 
 /* ------------- Separator Routines ----------------- */
@@ -249,7 +246,7 @@ GtkWidget *make_window( int width, int height, const char *title, GtkWidget *(*w
 GtkWidget *make_window_wkill( int width, int height, const char *title, GtkWidget *(*winptr), int callback(GtkWidget *, void *) );
 
         /* Like above, but set horz/vert-scroll to 1 or 0, to enable or disable respective scroll. */
-GtkWidget *make_scrolled_window_wkill( int width, int height, const char *title, GtkWidget *(*winptr), 
+GtkWidget *make_scrolled_window_wkill( int width, int height, const char *title, GtkWidget *(*winptr),
                                       int horzscroll, int vertscroll, int callback(GtkWidget *, void *) );
 
 	/* Initial call to set up outermost window. */
@@ -320,7 +317,7 @@ GtkTooltips *add_tool_tip( GtkWidget *wdg, const char *text );         /* Adds t
 /* ------------- File Browser ----------------- */
 GtkWidget *file_browser_popup( const char *dir, const char *text, void callback(GtkWidget *, void *) );
 
-	/* Example usage: 
+	/* Example usage:
 	   void receive_filename( GtkWidget *wdg, void *fs )
 	    {
 	     char *yourfilename=0;
