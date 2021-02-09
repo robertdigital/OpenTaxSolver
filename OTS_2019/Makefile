@@ -27,7 +27,7 @@ all: $(BUILD)/taxsolve_US_1040_2019 \
 run: $(BUILD)/ots_gui2 Run_taxsolve_GUI
 	./$<
 
-$(BUILD)/ots_gui2: src/Gui_gtk/ots_gui2.c
+$(BUILD)/ots_gui2: src/gtk/ots_gui2.c
 	@mkdir -p $(BUILD)
 	$(CC) $(CFLAGS) $(GTK2_FLAGS) -o $@ $^ $(GTK2_LIBS)
 
