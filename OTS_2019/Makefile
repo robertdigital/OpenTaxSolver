@@ -20,11 +20,10 @@ all: $(BUILD)/taxsolve_US_1040_2019 \
 	$(BUILD)/taxsolve_HSA_f8889 \
 	$(BUILD)/convert_results2xfdf \
 	$(BUILD)/ots_gui2 \
-	$(BUILD)/universal_pdf_file_modifier \
-	Run_taxsolve_GUI
+	$(BUILD)/universal_pdf_file_modifier
 
 .PHONY: run
-run: $(BUILD)/ots_gui2 Run_taxsolve_GUI
+run: $(BUILD)/ots_gui2
 	./$<
 
 $(BUILD)/ots_gui2: src/gtk/ots_gui2.c
@@ -83,9 +82,6 @@ $(BUILD)/convert_results2xfdf: src/convert_results2xfdf.c
 	@mkdir -p $(BUILD)
 	$(CC) $(CFLAGS) -o $@ $^
 
-Run_taxsolve_GUI: src/Run_taxsolve_GUI.c
-	$(CC) $(CFLAGS) -o $@ $^
-
 .PHONY: clean
 clean:
-	$(RM) -rv $(BUILD) Run_taxsolve_GUI
+	$(RM) -rv $(BUILD)
