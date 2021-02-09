@@ -83,7 +83,6 @@ char ots_release_package[]="15.07";
 #include <stdlib.h>
 #include <ctype.h>
 #include <sys/stat.h>
-// #include "backcompat.c"
 #include "gtk_utils.c"		/* Include the graphics library. */
 #include "gtk_file_browser.c"
 
@@ -136,7 +135,7 @@ char *taxsolvecmd=0, taxsolvestrng[MaxFname]="";
 #define LITERAL_INFO 1
 #define ID_INFO 2
 
-char program_names[30][100] = 
+char program_names[30][100] =
 	{
 	 "taxsolve_US_1040_2017",		/* 0 */
 	 "taxsolve_US_1040_Sched_C_2017",	/* 1 */
@@ -153,7 +152,7 @@ char program_names[30][100] =
 	 "Other",				/* 12 */
 	};
 
-enum form_names { form_US_1040, form_US_1040_Sched_C, form_US_8829, form_CA_540, 
+enum form_names { form_US_1040, form_US_1040_Sched_C, form_US_8829, form_CA_540,
 		  form_NC_D400, form_NJ_1040, form_OH_IT1040, form_PA_40,
 		  form_VA_760, form_NY_IT201, form_MA_1, form_GA_500, form_other
 		};
@@ -251,7 +250,7 @@ struct taxline_record
  } *taxlines_hd=0, *taxlines_tl=0;		/* Head and tail list pointers for tax-form. */
 
 
- struct taxline_record * 
+ struct taxline_record *
 new_taxline( char *linename, int linenum )
 {
  struct taxline_record *tmppt;
@@ -266,9 +265,9 @@ new_taxline( char *linename, int linenum )
 }
 
 
- struct value_list * 
+ struct value_list *
 new_list_item_value( int kind, struct taxline_record *txline, void *x, int column, int linenum )
-{ 
+{
  struct value_list *tmppt;
 
  tmppt = (struct value_list *)calloc( 1, sizeof(struct value_list) );
@@ -320,8 +319,8 @@ int get_next_entry( char *word, int maxn, int *column, int *linenum, FILE *infil
  int k=0;
 
  /* Get up to the next non-white-space character. */
- do 
-  { 
+ do
+  {
    word[k] = getc(infile);
    if (word[k] == '\n') { ots_column = 0;  ots_line++; } else ots_column++;
   }
@@ -332,7 +331,7 @@ int get_next_entry( char *word, int maxn, int *column, int *linenum, FILE *infil
  if (feof(infile)) {word[0] = '\0'; return NOTHING;}
  if (word[k]=='{')
   { /*get_comment*/
-    do 
+    do
      {
       word[k++] = getc(infile);
       if (word[k-1] == '\n') { ots_column = 0;  ots_line++; } else ots_column++;
@@ -346,7 +345,7 @@ int get_next_entry( char *word, int maxn, int *column, int *linenum, FILE *infil
  if (word[k]=='"')
   { /*get_quoted_value*/
     k++;
-    do 
+    do
      {
       word[k++] = getc(infile);
       if (word[k-1] == '\n') { ots_column = 0;  ots_line++; } else ots_column++;
@@ -359,15 +358,15 @@ int get_next_entry( char *word, int maxn, int *column, int *linenum, FILE *infil
  else
   { /*get_value_or_linelabel*/
     k++;
-    while ((!feof(infile)) && (word[k-1]!=' ') && (word[k-1]!='\t') && 
+    while ((!feof(infile)) && (word[k-1]!=' ') && (word[k-1]!='\t') &&
 	   (word[k-1]!='\n') && (word[k-1]!='\r') && (word[k-1]!=';') && (k<maxn))
-      { 
+      {
 	word[k++] = getc(infile);
 	if (word[k-1] == '\n') { ots_column = 0;  ots_line++; } else ots_column++;
       }
     if (k>=maxn) {printf("Error: Character buffer overflow detected.\n"); exit(1);}
     if (word[k-1]==';')
-     { 
+     {
       if (k==1) { word[1] = '\0';  return SEMICOLON; }
       else { ungetc(word[k-1], infile); word[k-1] = '\0';  return VALUE_LABEL; }
      }
@@ -394,9 +393,9 @@ void get_line_entry( char *word, int maxn, FILE *infile )
     {
      k++;
      if (k > maxn)
-      { 
-	word[k-1] = '\0';  
-	while ((!feof(infile)) && (getc(infile) != '\n'));  
+      {
+	word[k-1] = '\0';
+	while ((!feof(infile)) && (getc(infile) != '\n'));
 	consume_leading_trailing_whitespace( word );
 	return;
       }
@@ -497,8 +496,8 @@ void add_new_boxes( void *data, int num )
   {
    newitem2->nxt = lineitem->nxt;
    lineitem->nxt = newitem1;
-   oldtail->nxt = 0;  
-   item->parent->values_tl = oldtail;   
+   oldtail->nxt = 0;
+   item->parent->values_tl = oldtail;
   }
 
  /* Increment the effective file-line-number of all subsequent line entries. */
@@ -543,7 +542,7 @@ void add_new_boxes( void *data, int num )
 /*-------------------------------------------------------------------------*/
 void add_new_capgain_boxes( GtkWidget *wdg, void *data )
 {
- add_new_boxes( data, 2 ); 
+ add_new_boxes( data, 2 );
 }
 
 void add_new_box_item( GtkWidget *wdg, void *data )
@@ -567,7 +566,7 @@ void acceptcomment( GtkWidget *wdg, void *data )
  tmppt = (struct value_list *)data;
  comment = get_formbox( commentbox );
  // printf("Prior comment was '%s', new comment is '%s'\n", tmppt->comment, comment );
- if (tmppt->comment != 0) 
+ if (tmppt->comment != 0)
   {
    if (strcmp( tmppt->comment, comment ) != 0) { save_needed++;  compute_needed = 1; }
    free( tmppt->comment );
@@ -597,7 +596,7 @@ void edit_line_comment( GtkWidget *wdg, void *data )	/* Edit_comment. */
 
 
 #ifndef PLATFORM_KIND
- #define Posix_Platform  0 
+ #define Posix_Platform  0
  #define Mingw_Platform  1
  #define MsVisC_Platform 2
  #ifdef __CYGWIN32__
@@ -681,7 +680,7 @@ int datecheck( char *word )
 }
 
 
-#if (PLATFORM_KIND != Posix_Platform) 
+#if (PLATFORM_KIND != Posix_Platform)
  char slashchr='\\';
  char slashstr[]="\\";
 #else
@@ -715,7 +714,7 @@ void Read_Tax_File( char *fname )
  if (strstr(word,"Title:")==word) tmpstr = &(word[6]); else tmpstr = &(word[0]);
  k = strlen(tmpstr);	/* Pad to center if title is too short. */
  if (k < 20)
-  { for (j=0; j<(20-k)/2; j++) tmpstr2[k]=' '; tmpstr2[(20-k)/2] = '\0'; 
+  { for (j=0; j<(20-k)/2; j++) tmpstr2[k]=' '; tmpstr2[(20-k)/2] = '\0';
     strcpy(tmpstr3,tmpstr2); strcat(tmpstr3,tmpstr); strcpy(tmpstr,tmpstr3); strcat(tmpstr,tmpstr2);
   }
  taxform_name = strdup( tmpstr );
@@ -728,8 +727,8 @@ void Read_Tax_File( char *fname )
    if (verbose) printf("Kind=%d: state=%d: col=%d: lnum=%d:  '%s'\n", kind, state, column, linenum, word);
    switch (kind)
     {
-     case VALUE_LABEL: 
-	 if (state==0) 
+     case VALUE_LABEL:
+	 if (state==0)
 	  {
 	   if (verbose) printf(" LineLabel:	'%s'\n", word);
 	   state = 1;
@@ -1119,7 +1118,7 @@ void DisplayTaxInfo()
      switch (entry->kind)
       {
        case VKIND_FLOAT:	/* This kind is presently not used at all. (or anymore?) */
-		sprintf(messg, "%12.2f", entry->value ); 
+		sprintf(messg, "%12.2f", entry->value );
 		entry->box = new_formbox( mpanel2, box_x0, y1, 12, messg, 500, 0, 0 );
 		lastbox = entry->box;
 		gtk_widget_size_request( (GtkWidget *)(entry->box), &req );
@@ -1133,11 +1132,11 @@ void DisplayTaxInfo()
 		add_tool_tip( button, "Add another entry box\nfor this line." );
 		break;
 
-       case VKIND_INT:  
+       case VKIND_INT:
 		if (debug) printf("\tUnhandled VKIND_INT happened (%d) ??\n", (int)(entry->value));
 		break;
 
-       case VKIND_TEXT:  
+       case VKIND_TEXT:
 		if (debug) printf("\tText-FormBox: '%s' formtype = %d\n", entry->text, entry->formtype );
 
 		if (entry->formtype == 0)
@@ -1220,7 +1219,7 @@ void DisplayTaxInfo()
 		 }
 		break;
 
-       case VKIND_COMMENT: 
+       case VKIND_COMMENT:
 		if (debug) printf("\tComment {%s} at (%d, %d)\n", entry->comment, comment_x0, y1a );
 
 		if (startswith( entry->comment, "--" ))
@@ -1306,7 +1305,7 @@ void dump_taxinfo()
  struct value_list *tmppt;
 
  printf("\n======================================\n");
- printf("Line#, Kind, formtype: Value\n--------------------\n"); 
+ printf("Line#, Kind, formtype: Value\n--------------------\n");
  txline = taxlines_hd;
  while (txline != 0)
   {
@@ -1343,7 +1342,7 @@ char *my_strcasestr( char *line, char *srchstr )
     if (srchstr[k] == '\0') { return &(line[j]); }
     j++;
    }
- return 0; 
+ return 0;
 }
 
 
@@ -1418,7 +1417,7 @@ void Save_Tax_File( char *fname )
   }
 
  outfile = fopen(current_working_filename, "w");
- if (outfile==0) 
+ if (outfile==0)
   {
    sprintf(wmsg,"ERROR: Output file '%s' could not be opened for writing.", current_working_filename );
    warn_release = 2;
@@ -1465,7 +1464,7 @@ void Save_Tax_File( char *fname )
 void open_taxfile( char *filename )
 {
  infile = fopen(filename,"r");
- if (infile==0) 
+ if (infile==0)
   {
    printf("ERROR: Input file '%s' could not be opened.\n", filename);
    GeneralWarning("Error: Tax file could not be opened.");
@@ -1475,12 +1474,12 @@ void open_taxfile( char *filename )
   {
    Get_New_Tax_Form_Page( filename );
   }
-} 
+}
 
 
 
 void save_taxfile( GtkWidget *wdg, void *data )
-{ 
+{
  char *cpt, *param;
  if (verbose) printf("File-Save Dialog at: '%s'\n", directory_dat );
  param = (char *)data;
@@ -1562,13 +1561,13 @@ void set_invocation_path( char *toolpath )
  while ((k > 0) && (tmpstr[k] != slashchr)) k--;
  if (tmpstr[k] == slashchr)
   tmpstr[k+1] = '\0';
- else 
+ else
 #if (PLATFORM_KIND==Posix_Platform)
    {sprintf(tmpstr,".%c", slashchr);}
   if (strstr( invocation_path, "bin" ) != 0)
    sprintf( toolpath, "%sbin%c", tmpstr, slashchr);
   else
-   strcpy( toolpath, "./" );   
+   strcpy( toolpath, "./" );
  #else
    tmpstr[k] = '\0';
   sprintf( toolpath, "%sbin%c", tmpstr, slashchr);
@@ -1616,14 +1615,14 @@ void taxsolve()				/* "Compute" the taxes. Run_TaxSolver. */
  char vline[5000];
  int wd, ht, valid_results=1, linesread=0;
 
- if (current_working_filename == 0) 
+ if (current_working_filename == 0)
   {
    GeneralWarning( "No tax file selected." );
    return;
   }
- if (strlen(taxsolvestrng) > 0) 
+ if (strlen(taxsolvestrng) > 0)
   taxsolvecmd = taxsolvestrng;
- if (taxsolvecmd == 0) 
+ if (taxsolvecmd == 0)
   taxsolvecmd = getenv("taxsolvecmd");
  if (taxsolvecmd == 0)
   {
@@ -1644,7 +1643,7 @@ void taxsolve()				/* "Compute" the taxes. Run_TaxSolver. */
  #if (PLATFORM_KIND == Posix_Platform)
   sprintf(cmd,"'%s' '%s' &", taxsolvecmd, current_working_filename );
  #else
-   if ((strlen(taxsolvecmd) > 2 ) && (taxsolvecmd[1] == ':') && (taxsolvecmd[2] != '"')) 
+   if ((strlen(taxsolvecmd) > 2 ) && (taxsolvecmd[1] == ':') && (taxsolvecmd[2] != '"'))
     { /*Insert quotes around file name for Microsoft, in case pathname has spaces in it.*/
      int j;
      char *tstr;
@@ -1670,9 +1669,9 @@ void taxsolve()				/* "Compute" the taxes. Run_TaxSolver. */
  make_sized_label( panel, 1, 1, "Results written to file:", 12 );
  label = make_sized_label( panel, 30, 25, outfname, 8 );
  set_widget_color( label, "#0000ff" );
- // make_button( panel, wd/2 - 15, ht - 35, "  OK  ", canceltxslvr, 0 ); 
- make_button( panel, 60, ht - 35, "Print Result File", print_outfile_directly, 0 ); 
- make_button( panel, wd - 180, ht - 35, " Close ", canceltxslvr, 0 ); 
+ // make_button( panel, wd/2 - 15, ht - 35, "  OK  ", canceltxslvr, 0 );
+ make_button( panel, 60, ht - 35, "Print Result File", print_outfile_directly, 0 );
+ make_button( panel, wd - 180, ht - 35, " Close ", canceltxslvr, 0 );
  show_wind( resultswindow );
  UpdateCheck();
  Sleep_seconds( 0.25 );
@@ -1697,15 +1696,15 @@ void taxsolve()				/* "Compute" the taxes. Run_TaxSolver. */
      append_selection_list( mylist, &iter, vline );
      linesread++;
      fgets( vline, 256, viewfile );
-     if (strstr( vline, "Identity-Information:" ) != 0) 
+     if (strstr( vline, "Identity-Information:" ) != 0)
       valid = 0;
-     if (strstr( vline, "Error" ) != 0) 
+     if (strstr( vline, "Error" ) != 0)
       valid_results = 0;
     }
    fclose(viewfile);
   }
  if ((valid_results) && (linesread > 10) && (supported_pdf_form))
-  make_button( panel, wd/2 - 80, ht - 35, "Fill-out PDF Forms", create_pdf_file_directly, 0 ); 
+  make_button( panel, wd/2 - 80, ht - 35, "Fill-out PDF Forms", create_pdf_file_directly, 0 );
  show_wind( resultswindow );
  computed = 1;
  compute_needed = 0;
@@ -1762,7 +1761,7 @@ void cancelprintpopup( GtkWidget *wdg, void *data )
 
 
 void togprntcmd_in( GtkWidget *wdg, void *data )
-{ 
+{
  if (!printdialogsetup) return;
  sprintf(printer_command,"%s \"%s\"", base_printer_command, current_working_filename );
  modify_formbox( printerformbox, printer_command );
@@ -1781,7 +1780,7 @@ void togprntcmd_out( GtkWidget *wdg, void *data )
  predict_output_filename( current_working_filename, wrkingfname );
  sprintf(printer_command,"%s \"%s\"", base_printer_command, wrkingfname );
  modify_formbox( printerformbox, printer_command );
- if (print_mode == 2) 
+ if (print_mode == 2)
   {
    modify_label( print_label, "Print Command" );
    gtk_button_set_label( GTK_BUTTON( print_button ), "  Print It  " );
@@ -1791,7 +1790,7 @@ void togprntcmd_out( GtkWidget *wdg, void *data )
 
 
 GtkWidget *status_win=0, *status_panel, *status_label;
-struct 
+struct
  { int wd, ht, y_val, nfiles;
    char *fnames[10];
  } statusw;
@@ -1799,13 +1798,13 @@ char *pdfviewer=0;
 
 
 void dismiss_status_win( GtkWidget *wdg, void *data )
-{ 
+{
  if (status_win != 0)
   { gtk_widget_destroy( status_win );  status_win = 0; }
 }
 
 int killed_status_win( GtkWidget *wdg, void *data )
-{ 
+{
  status_win = 0;
  return 0;	/* Returning "0" causes window to be destroyed. */
 }
@@ -1848,11 +1847,11 @@ void call_pdfviewer( char *pdfname )
    strcpy( cmd, "open -a ");
    strcat( cmd, pdfviewer );
   #else
-   strcpy( cmd, pdfviewer );  
+   strcpy( cmd, pdfviewer );
   #endif
   strcat( cmd, " ");  strcat( cmd, tmppdfname );  strcat( cmd, " &" );
  #else
-  strcpy( cmd, "start ");  strcat( cmd, pdfviewer );  strcat( cmd, " ");  
+  strcpy( cmd, "start ");  strcat( cmd, pdfviewer );  strcat( cmd, " ");
 	strcat( cmd, tmppdfname );
  #endif
  printf("Issuing: %s\n", cmd );
@@ -2081,7 +2080,7 @@ void catch_pdfviewer_selection( GtkWidget *wdg, void *data )
  char *text;
  text = get_selection_from_list( wdg );
  if (strlen( text ) > 0)
-  modify_formbox( spdffrmbx, text ); 
+  modify_formbox( spdffrmbx, text );
 }
 
 
@@ -2222,9 +2221,9 @@ void setpdfoutputname( char *origname, char *suffix, char *newname )
  strcpy( newname, origname );
  j = strlen( newname ) - 1;
  while ((j >= 0) && (newname[j] != '.')) j--;
- if (j >= 0) 
+ if (j >= 0)
   newname[j] = '\0';
- strcat( newname, suffix );  
+ strcat( newname, suffix );
 }
 
 
@@ -2241,14 +2240,14 @@ void prepare_pdf_cmd( char *options, char *metadata, char *contxt, char *wrkingf
 
  strcpy( fillout_pdf_command, fillout_pdf_tool );
  strcat( fillout_pdf_command, " " );
- if (strlen(options) > 0) 
+ if (strlen(options) > 0)
   {
    strcat( fillout_pdf_command, options );
    strcat( fillout_pdf_command, " " );
   }
 
  strcpy( tmpmetadata, ots_path );
- strcat( tmpmetadata, "src" );  strcat( tmpmetadata, slashstr );  
+ strcat( tmpmetadata, "src" );  strcat( tmpmetadata, slashstr );
  strcat( tmpmetadata, "formdata" ); strcat( tmpmetadata, slashstr );
  strcat( tmpmetadata, metadata );
  quote_file_name( tmpmetadata );
@@ -2257,7 +2256,7 @@ void prepare_pdf_cmd( char *options, char *metadata, char *contxt, char *wrkingf
  quote_file_name( tmpwrkingfname );
 
  strcpy( tmpmarkedpdf, ots_path );
- strcat( tmpmarkedpdf, "src" );  strcat( tmpmarkedpdf, slashstr );  
+ strcat( tmpmarkedpdf, "src" );  strcat( tmpmarkedpdf, slashstr );
  strcat( tmpmarkedpdf, "formdata" ); strcat( tmpmarkedpdf, slashstr );
  strcat( tmpmarkedpdf, markedpdf );
  quote_file_name( tmpmarkedpdf );
@@ -2303,14 +2302,14 @@ void prepare_universal_pdf_cmd( char *options, char *metadata, char *wrkingfname
  strcat( fillout_pdf_command, options );
  strcat( fillout_pdf_command, " " );
  strcpy( tmpmetadata, ots_path );
- strcat( tmpmetadata, "src" );  strcat( tmpmetadata, slashstr );  
+ strcat( tmpmetadata, "src" );  strcat( tmpmetadata, slashstr );
  strcat( tmpmetadata, "formdata" ); strcat( tmpmetadata, slashstr );
  strcat( tmpmetadata, metadata );
  quote_file_name( tmpmetadata );
  strcpy( tmpwrkingfname, wrkingfname );
  quote_file_name( tmpwrkingfname );
  strcpy( tmpmarkedpdf, ots_path );
- strcat( tmpmarkedpdf, "src" );  strcat( tmpmarkedpdf, slashstr );  
+ strcat( tmpmarkedpdf, "src" );  strcat( tmpmarkedpdf, slashstr );
  strcat( tmpmarkedpdf, "formdata" ); strcat( tmpmarkedpdf, slashstr );
  strcat( tmpmarkedpdf, markedpdf );
  quote_file_name( tmpmarkedpdf );
@@ -2576,7 +2575,7 @@ void create_pdf_file_directly( GtkWidget *wdg, void *data )
 
 void printout( GtkWidget *wdg, void *data )
 {
- GtkWidget *rad, *panel; 
+ GtkWidget *rad, *panel;
  int x1=70, x2, y1=30, dy=20, wd=750, ht=190, printht;
 
  Update_box_info();
@@ -2620,7 +2619,7 @@ void printout( GtkWidget *wdg, void *data )
  else
   strcat( printer_command, current_working_filename );
  x1 = 20;
- printerformbox = new_formbox_bypix( panel, x1, y1, wd - x1 - 10, printer_command, MaxFname, acceptprinter_command, 0 ); 
+ printerformbox = new_formbox_bypix( panel, x1, y1, wd - x1 - 10, printer_command, MaxFname, acceptprinter_command, 0 );
  printht = ht - 35;
  print_button = make_button( panel, 50, printht, "  Print It  ", acceptprinter_command, 0 );
  make_button( panel, wd - 95, printht, "Cancel", cancelprintpopup, 0 );
@@ -2800,7 +2799,7 @@ int myfilterfunc( char *word )
   {
    if (my_strcasestr( word, "_out.txt" ) != 0) return 0;
    if (my_strcasestr( word, "README_" ) != 0) return 0;
-   return 1; 
+   return 1;
   }
  else return 0;
 }
@@ -2933,10 +2932,10 @@ void helpabout1( GtkWidget *wdg, void *data )
  strcat( msg, "                For the 2017 Tax Year.    OTS release ");
  strcat( msg, ots_release_package );   strcat( msg, "\n\n" );
  strcat( msg, "Use this GUI to open tax-forms and calculate taxes.\n");
- strcat( msg, " 1. First select a tax-form to do from the available programs listed.\n" ); 
+ strcat( msg, " 1. First select a tax-form to do from the available programs listed.\n" );
  strcat( msg, " 2. Then to start a new blank return click 'Start New Return'.\n");
  strcat( msg, "     Or to open a file you previously saved, or a working example,\n");
- strcat( msg, "      click 'Open Saved Form' button, select your file or example,\n" ); 
+ strcat( msg, "      click 'Open Saved Form' button, select your file or example,\n" );
  strcat( msg, "      and click 'Ok'\n");
  strcat( msg, " 3. Fill out the form that pops up.\n");
  strcat( msg, " 4. Save your filled-out form to a name of your choice.\n");
@@ -2961,7 +2960,7 @@ void helpabout2( GtkWidget *wdg, void *data )
  strcat( msg, "       version with a unique name that is meaningful to you.)\n");
  strcat( msg, "  3. Click 'Compute Tax' to see results.\n");
  strcat( msg, "  4. Click 'Print' to print-out the results or to automatically\n");
- strcat( msg, "       fill-out the final forms.\n\n"); 
+ strcat( msg, "       fill-out the final forms.\n\n");
  strcat( msg, "For help, additional information, and updates:\n" );
  strcat( msg, " Surf to:   http://opentaxsolver.sourceforge.net/\n" );
  GeneralPopup( "OTS Information", msg );
@@ -2996,12 +2995,12 @@ int main(int argc, char *argv[] )
  while (argn < argc)
  {
   if (strcmp(argv[argn],"-verbose")==0)
-   { 
+   {
     verbose = 1;
    }
   else
   if (strcmp(argv[argn],"-help")==0)
-   { 
+   {
     printf("OTS GUI v%1.2f, %s:\n", version, package_date );
     printf(" Command-line Options:\n");
     printf("  -verbose          - Show status messages.\n");
@@ -3032,7 +3031,7 @@ int main(int argc, char *argv[] )
    }
   else
   if (strcmp( argv[argn], "-debug" ) == 0)
-   { 
+   {
     debug = 1;
     #if (PLATFORM_KIND==Posix_Platform)
 	system( "pwd" );
@@ -3051,8 +3050,8 @@ int main(int argc, char *argv[] )
    }
   else
    {
-    printf("Unknown command-line parameter '%s'\n", argv[argn]); 
-    /* exit(1); */ 
+    printf("Unknown command-line parameter '%s'\n", argv[argn]);
+    /* exit(1); */
    }
   argn = argn + 1;
  }
@@ -3127,7 +3126,7 @@ int main(int argc, char *argv[] )
 
  slcttxprog( 0, "0" );	/* Set default tax program. */
 
- if (infile == 0) 
+ if (infile == 0)
   {
    button = make_button_wsizedcolor_text( mpanel, 30, winht - 100, "Start New Return", 14.0, "#000000", pick_template, 0 );
    add_tool_tip( button, "Start a fresh new blank return of the selected type." );
